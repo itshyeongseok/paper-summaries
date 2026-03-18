@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paper Notes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F7F5F0;
+      --surface: #FFFFFF;
+      --text-primary: #1A1A1A;
+      --text-secondary: #6B6860;
+      --text-muted: #9B9890;
+      --accent: #2D5A8E;
+      --accent-light: #EBF1F8;
+      --tag-bg: #F0EDE8;
+      --tag-text: #5A5650;
+      --border: #E8E4DE;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+      --shadow-hover: 0 4px 12px rgba(0,0,0,0.1), 0 12px 40px rgba(0,0,0,0.08);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+    .logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.35rem;
+      color: var(--text-primary);
+    }
+    .logo span { color: var(--accent); font-style: italic; }
+    .paper-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .hero {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3.5rem 2rem 2rem;
+    }
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+    .hero h1 em { color: var(--accent); font-style: italic; }
+    .hero p {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      font-weight: 300;
+      max-width: 480px;
+      line-height: 1.6;
+    }
+    .controls {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 0;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .search-wrap { position: relative; flex: 1; min-width: 240px; }
+    .search-wrap svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+    #searchInput {
+      width: 100%;
+      padding: 10px 14px 10px 40px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #searchInput:focus { border-color: var(--accent); }
+    #searchInput::placeholder { color: var(--text-muted); }
+    .tag-filters { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .tag-btn {
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .tag-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .tag-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+    .grid-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 2rem 4rem;
+    }
+    .result-info {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+      margin-bottom: 1.25rem;
+    }
+    .papers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.25rem;
+    }
+    .paper-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      animation: fadeUp 0.4s ease both;
+    }
+    .paper-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+      border-color: rgba(45, 90, 142, 0.2);
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .card-year {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .card-arrow {
+      color: var(--text-muted);
+      transition: transform 0.2s, color 0.2s;
+      flex-shrink: 0;
+    }
+    .paper-card:hover .card-arrow { transform: translate(2px, -2px); color: var(--accent); }
+    .card-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.05rem;
+      font-weight: 400;
+      line-height: 1.4;
+      color: var(--text-primary);
+    }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: auto; }
+    .tag {
+      font-size: 0.72rem;
+      padding: 3px 9px;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      border-radius: 4px;
+      font-family: 'DM Mono', monospace;
+    }
+    .divider { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+    .divider hr { border: none; border-top: 1px solid var(--border); }
+    .empty-state {
+      text-align: center;
+      padding: 5rem 2rem;
+      color: var(--text-muted);
+      display: none;
+    }
+    .empty-state p { font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: var(--text-secondary); }
+    .empty-state small { font-size: 0.82rem; margin-top: 0.4rem; display: block; }
+    @media (max-width: 600px) {
+      .controls { flex-direction: column; }
+      .search-wrap { min-width: 100%; }
+      .papers-grid { grid-template-columns: 1fr; }
+      .hero { padding-top: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="logo">Paper<span>Notes</span></div>
+    <div class="paper-count" id="headerCount"></div>
+  </div>
+</header>
+<section class="hero">
+  <h1>읽은 논문들을<br><em>한 페이지</em>로 정리했어요.</h1>
+  <p>항공우주, 로보틱스 분야의 논문 요약 모음입니다.</p>
+</section>
+<div class="divider" style="padding-top:1.5rem;"><hr></div>
+<div class="controls">
+  <div class="search-wrap">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input type="text" id="searchInput" placeholder="제목, 키워드로 검색...">
+  </div>
+  <div class="tag-filters" id="tagFilters"></div>
+</div>
+<section class="grid-section">
+  <div class="result-info" id="resultInfo"></div>
+  <div class="papers-grid" id="papersGrid"></div>
+  <div class="empty-state" id="emptyState">
+    <p id="emptyMsg">검색 결과가 없습니다.</p>
+    <small id="emptyHint"></small>
+  </div>
+</section>
+<script>
+  const PAPERS = [
+    // AUTO_INJECT_START
+    {title: "Reinforcement Learning for Versatile, Dynamic, and Robust Bipedal Locomotion Control", year: "2024", tags: ["reinforcement learning", "bipedal locomotion", "sim-to-real", "robotics"], file: "[2024] Reinforcement Learning for Versatile Dynamic and Robust Bipedal Locomotion Control_summary.html"}
+    // AUTO_INJECT_END
+  ];
+
+  let activeTag = null;
+
+  function getAllTags(papers) {
+    const set = new Set();
+    papers.forEach(p => (p.tags || []).forEach(t => set.add(t)));
+    return [...set].sort();
+  }
+
+  function renderTagFilters(papers) {
+    const container = document.getElementById('tagFilters');
+    const tags = getAllTags(papers);
+    if (!tags.length) return;
+    container.innerHTML = tags.map(t =>
+      `<button class="tag-btn" data-tag="${t}">${t}</button>`
+    ).join('');
+    container.querySelectorAll('.tag-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (activeTag === btn.dataset.tag) {
+          activeTag = null;
+          btn.classList.remove('active');
+        } else {
+          container.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+          activeTag = btn.dataset.tag;
+          btn.classList.add('active');
+        }
+        renderCards();
+      });
+    });
+  }
+
+  function renderCards() {
+    const query = document.getElementById('searchInput').value.toLowerCase().trim();
+    const grid = document.getElementById('papersGrid');
+    const empty = document.getElementById('emptyState');
+    const info = document.getElementById('resultInfo');
+    let filtered = PAPERS.filter(p => {
+      const matchTag = !activeTag || (p.tags || []).includes(activeTag);
+      const matchQuery = !query ||
+        p.title.toLowerCase().includes(query) ||
+        (p.tags || []).some(t => t.toLowerCase().includes(query));
+      return matchTag && matchQuery;
+    });
+    if (!filtered.length) {
+      grid.innerHTML = '';
+      empty.style.display = 'block';
+      document.getElementById('emptyMsg').textContent = PAPERS.length ? '검색 결과가 없습니다.' : '아직 등록된 논문이 없습니다.';
+      document.getElementById('emptyHint').textContent = PAPERS.length ? '다른 키워드나 태그로 찾아보세요.' : 'papers/ 폴더에 HTML 파일을 추가해주세요.';
+      info.textContent = '';
+    } else {
+      empty.style.display = 'none';
+      info.textContent = `${filtered.length}개의 논문`;
+      grid.innerHTML = filtered.map((p, i) => `
+        <a class="paper-card" href="${encodeURIComponent(p.file)}" style="animation-delay:${i * 0.04}s">
+          <div class="card-top">
+            <span class="card-year">${p.year || '—'}</span>
+            <svg class="card-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M7 17L17 7M17 7H7M17 7v10"/>
+            </svg>
+          </div>
+          <div class="card-title">${p.title}</div>
+          <div class="card-tags">
+            ${(p.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}
+          </div>
+        </a>
+      `).join('');
+    }
+    document.getElementById('headerCount').textContent = `${PAPERS.length} papers`;
+  }
+
+  document.getElementById('searchInput').addEventListener('input', renderCards);
+  renderTagFilters(PAPERS);
+  renderCards();
+</script>
+</body>
+</html>
