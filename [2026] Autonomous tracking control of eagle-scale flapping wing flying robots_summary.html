@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="paper-title"   content="Autonomous tracking control of eagle-scale flapping wing flying robots in confined space based on periodic motion equivalence">
+    <meta name="paper-year"    content="2026">
+    <meta name="paper-author"  content="Zihao Wei, Zibai Xin, Erzhen Pan, Junzhi Yu, Wenfu Xu">
+    <meta name="paper-journal" content="Biomimetic Intelligence and Robotics">
+    <meta name="paper-tags"    content="flapping wing, control, robotics">
+    <meta name="paper-doi"     content="https://doi.org/10.1016/j.birob.2026.100321">
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Noto Sans KR', Arial, sans-serif; margin: 0; padding: 0;
+               background: #f5f5f5; color: #333; display: flex; justify-content: center;
+               align-items: center; min-height: 100vh; }
+        .slide { width: 1680px; min-height: 720px; background: white;
+                 box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex;
+                 flex-direction: column; margin: 20px 0; }
+        .header { background: #005b96; color: white; padding: 20px 30px;
+                  display: flex; flex-direction: column; box-sizing: border-box; }
+        .title { font-size: 24px; font-weight: bold; margin-bottom: 8px; }
+        .authors { font-size: 15px; margin-bottom: 4px; }
+        .journal { font-size: 14px; opacity: 0.9; }
+        .summary-container { background: #f0f5fa; padding: 12px 30px;
+                             border-bottom: 1px solid #e1e5e8; }
+        .summary-title { font-size: 16px; font-weight: bold; margin-bottom: 5px; color: #005b96; }
+        .summary { font-size: 14px; line-height: 1.5; }
+        .content { display: grid; grid-template-columns: repeat(3, 1fr);
+                   gap: 15px; padding: 15px; flex: 1; }
+        .section { background: white; border: 1px solid #e0e0e0; border-radius: 6px;
+                   padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                   max-height: 320px; overflow-y: auto; }
+        .section-title { color: #005b96; font-size: 16px; font-weight: bold;
+                         margin-bottom: 10px; padding-bottom: 5px;
+                         border-bottom: 2px solid #005b96; }
+        .section-content { font-size: 13px; line-height: 1.6; }
+        .term { font-weight: bold; color: #005b96; }
+        .bullet { margin-left: 8px; text-indent: -8px; padding-left: 8px; margin-bottom: 6px; }
+        .bullet:before { content: "\2022 "; color: #005b96; }
+        .eng { color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="slide">
+        <div class="header">
+            <div class="title">Autonomous tracking control of eagle-scale flapping wing flying robots in confined space based on periodic motion equivalence</div>
+            <div class="authors">Zihao Wei, Zibai Xin, Erzhen Pan, Junzhi Yu, Wenfu Xu</div>
+            <div class="journal">Biomimetic Intelligence and Robotics &nbsp;|&nbsp; 2026 &nbsp;|&nbsp; DOI: 10.1016/j.birob.2026.100321</div>
+        </div>
+        <div class="summary-container">
+            <div class="summary-title">논문 요약</div>
+            <div class="summary">대형 날갯짓 비행 로봇(FWFR, HIT-Hawk: 1550 g, 날개폭 1.8 m)는 자원 탐사·재난 대응 등에서 잊재가 크지만, 좌우 전환 불가, 최소 비행 속도(&gt;7 m/s), 날갯짓으로 인한 주기적 기체 진동 등 독특한 동역학적 제약으로 밀페 용간 에서의 자율 장애물 회피가 매우 어렵다. 본 연구는 주기 운동 등가성(periodic motion equivalence) 개념에 기반한 운동학·동역학 모델을 도출하고, 동적 윈도우(dynamic window approach)로 장땠물 회피 경로를 계획하며, 주기 등가 필터링 PID 제어로 직선·원형·지그재그 비행 같은 복합 관성 경로 추적을 달성한다. 실외 비행 실험을 통해 HIT-Hawk가 실제 바교 사이를 안전하게 비행함을 입증했다.</div>
+        </div>
+        <div class="content">
+            <div class="section">
+                <div class="section-title">Introduction: 연구 동기</div>
+                <div class="section-content">
+                    <div class="bullet">대형 FWFR(Eagle-scale Flapping Wing Flying Robot)는 우수한 생체모방성과 은닩성으로 환경 탐지·재난 구조·대테러 정찰 등에 높은 활용 가치를 지니나, 저고도 용간 장애물 회피는 핵심 기술적 과제로 남아 있다.</div>
+                    <div class="bullet">소형 날갯짓 스모(FWMAVs)나 쿴드로터와 다르게, 대형 FWFR는 호버링 불가, 날개폭 1.8 m의 대형 기체, 최소 속도 툥에 따른 성능 뭐짠 등 외란 제약요인이 복합적으로 작용한다.</div>
+                    <div class="bullet">Li et al.(2022)의 에너지 최적화 기반 자세 제어, Qian et al.의 하이브리드 모드 제어 등 선행 연구는 주기 평균화(periodic averaging)를 충분히 다루지 않았거나 실외 환경 실험 검증이 부족하다.</div>
+                    <div class="bullet">Hoff et al.(2021)은 직접 콜로케이션으로 동적으로 실행 가능한 비행 기동을 계획했으나, 실제 외부 환경 실험을 시행하지 못했다.</div>
+                    <div class="bullet">HIT-Hawk의 기본 파라미터: 질량 1550 g, 날개폭 1.8 m, 날갯짓 주파수 0–3 Hz, 비행 속도 8–20 m/s, 최소 회전 반경 4 m; 제어 자유도는 날갯짓 속도(1 DoF) + 피치·요 조종(2 DoF) 합계 3개누.</div>
+                    <div class="bullet">주기적 기체 진동으로 인해 실제 피치 아탈란각 데이터에 날갯짓 기본 주파수와 배직 성분이 모5확히 나타나 푸리에 변환으로 확인되었으며, 이는 고정익 제어법 직접 적용이 불가함을 시사한다.</div>
+                    <div class="bullet">실외 밀페 등간(예: 도시 바교 사이)에서의 자율 추적 및 장땠물 회피를 동시에 달성하는 통합 프레임워크가 없다.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Related Works: 관련 연구</div>
+                <div class="section-content">
+                    <div class="bullet"><span class="term">Ou et al. (2021)</span>: 고정익 플랫폼에 위계적 강화학습(hierarchical RL) 기반 장땠물 회피 전략; 성공률 향상 다룬.</div>
+                    <div class="bullet"><span class="term">Tijmons et al.</span>: 스테레오 비전 입력 기반 소형 FWMAV 회피; 요소 몜스 연산으로 등속 기동 중 회피 구현.</div>
+                    <div class="bullet"><span class="term">Rodríguez-Gómez et al.</span>: 이벤트 카메라를 이용한 대형 FWMAV 완전 온보드 동적 감지-회피 시스템; 수평·수직 한 편향 제어.</div>
+                    <div class="bullet"><span class="term">Xu et al.(HIT-Phoenix)</span>: FreeRTOS 기반 온보드 컨트롤러, 순간 공기역학 효과를 고려한 자세 추정 및 제어 설계.</div>
+                    <div class="bullet"><span class="term">He et al.</span>: 준정상태 공기역학 이론과 FoWFR 동역학 모델에 기반한 포화형 피드백 제어기; 평판익 날개 시스템에 적용.</div>
+                    <div class="bullet"><span class="term">Wang et al.</span>: 딥러닝 신경망 교대 모델로 FWMAV의 양력·추력·모멘트 시간 이력 곡선를 정밀 및 고속 예측.</div>
+                    <div class="bullet"><span class="term">Qian et al. (HIT)</span>: 연속 보상 신경망 기반 하이브리드 모드 제어, 실외 실험 누락이라는 한계 존재.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Method: 새로운 접근 방법</div>
+                <div class="section-content">
+                    <div class="bullet"><span class="term">주기 운동 등가성(Periodic Motion Equivalence)</span>: 날갯짓으로 인한 주기적 양력·피치 변동을 한 주기 평균값으로 대체(등가)&mdash;이를 통해 미분 방정식으로 표현되는 종단 운동 방정식을 계도하여 신뢰성 높은 제어기 설계 가능.</div>
+                    <div class="bullet"><span class="term">동적 윈도우(Dynamic Window Approach)</span>: 속도-요 운동 제약(V<sub>1</sub>: 범위 제약, V<sub>2</sub>: 가속도 제약, V<sub>3</sub>: 장땠물 회피)의 교집합으로 허용 동작 영역 연산; 목표 방향·장땠물 거리·속도 평가 함수 조합으로 최적 관성 선택.</div>
+                    <div class="bullet"><span class="term">비행 경로 분해</span>: 복잡한 비행 경로를 직선·원호·복합 지그재그 세 가지 기본 하위 경로로 분해하여 각각 단순한 추적 전략 적용, 복잡한 전체 경로 추적 달성.</div>
+                    <div class="bullet"><span class="term">없드리걌이티드 직선·원형 추적</span>: 안내선(guide line, L<sub>r</sub>) 교점을 순간 목표점으로 삼아 요 제어 출력 산출; L<sub>r</sub> = k<sub>l</sub>·v<sub>g</sub> 로 비행 속도에 따른 동적 조정.</div>
+                    <div class="bullet"><span class="term">주기 등가 PID 제어</span>: 주기적 변동을 평균화한 동역학 모델에 표준 PID를 적용; 피치 안정화, 고도 유지, 속도 제어 동시 수행.</div>
+                    <div class="bullet"><span class="term">마진 성능 분석</span>: HIT-Hawk의 최소 관성 기준 속도 분석으로 2.8 Hz, U &ge; 7 m/s의 비행 조건 도출; 이 성능 한계를 고려한 수식 기반 수정주기 제약 연산.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Experiment: 실험 방법과 결과</div>
+                <div class="section-content">
+                    <div class="bullet">STM32F405 메인 칩 기반 플라이트 컨트롤 보드; IMU·기압계·자지일즈·GPS·홀 센서 탑재; FreeRTOS 프레임워크 기반 자율 비행 제어 프로그램 실행.</div>
+                    <div class="bullet">기존 고정 PID 제어에서 HIT-Hawk 피치 개루모텝팅 성능이 비이상적임을 실험으로 확인; 피치 속도 q 데이터에서 날갯짓 1도·2배 주파수 성분 주도적 확인.</div>
+                    <div class="bullet">실외 비행 실험에서 직선 추적, 원형 선회, 복합 지그재그 경로 추적 모두 성공적으로 수행.</div>
+                    <div class="bullet">밀페 등간(실제 바교 사이) 비행 실험: HIT-Hawk이 원하는 광적을 따라 안전하게 장땠물 회피 비행 달성 — 확장된 장땠물 영역(R<sub>s</sub>)으로 충돌 안전 보장.</div>
+                    <div class="bullet">실험 중 동적으로 L<sub>r</sub> 파라미터를 비행 속도에 따라 조정하여 추적 성능 최적화 증명.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Discussion: 결과의 해석</div>
+                <div class="section-content">
+                    <div class="bullet">주기 운동 등가성 접근법은 날갯짓 비행체의 고유한 주기적 진동 문제를 평균화하여 고전적 비행역학 프레임워크를 적용할 수 있게 해 주어, 구현 복잡도와 계산 오버헤드를 크게 줄인다.</div>
+                    <div class="bullet">동적 윈도우 평가 함수(G = α·heading + β·dist + γ·vel)는 지점돈 비행만 고려하는 기존 DWA를 명시 광적 제약이 있는 시스템(쿴드로터 등)에 맞게 확장한 성과이다.</div>
+                    <div class="bullet">최소 예상 주기 R<sub>min_airplane</sub> vs R<sub>max_mission</sub> 비교를 통해 호 전환 vs 엄격한 웨이포인트 판단 전략을 자동 선택, 매끄러운 전환으로 넥림품슬 제어 효과.</div>
+                    <div class="bullet"><span class="term">한계</span>: 현재 기체 제어에 롤 조종면(roll rudder)이 없어 횟늘림 제어 능력이 제한되며, 요율러로 롤을 간접 제어하는 방식은 정밀도에 한계가 있다.</div>
+                    <div class="bullet">실시간 장땠물 인식 센서(LiDAR/콴프터 비전 등)의 통합이 이루어지면 다렐 기동적 환경에서의 적용 가능성이 크게 높아질 것이다.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Conclusion: 최종 요약</div>
+                <div class="section-content">
+                    <div class="bullet">대형 FWFR의 주기적 날갯짓 운동을 평균화하는 주기 등가성 운동학·동역학 모델을 도출하고, 이를 기반으로 피치·선늨 동시 제어에 성공했다.</div>
+                    <div class="bullet">동적 윈도우 + 주기 등가 PID 제어를 연동하여 실제 및 외부 실험 환경에서 직선·원형·지그재그 경로 추적 모두 성공적으로 검증했다.</div>
+                    <div class="bullet">밀페 등간에서 실제 바교 사이를 HIT-Hawk이 안전하게 장땠물 회피 비행하는 데 성공하여 대형 FWFR의 실용적 가능성을 열었다.</div>
+                    <div class="bullet">향후 연구: 롤 러더 추가로 제어 자유도 확장, 실시간 장뀀물 감지 센서 통합, 으추 요소 포함 다양한 실외 환경에서의 측정 실험.</div>
+                    <div class="bullet">본 연구는 대형 FWFR의 자율 비행 기술 발전에 기여하며, 장기적으로는 도시 낮은높이 관측 및 대테러 정찰 등 실제 작전 적용에 기여할 것으로 기대된다.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
