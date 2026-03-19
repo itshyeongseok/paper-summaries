@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="paper-title"   content="Numerical simulation framework of bird-inspired ornithopter in forward flight">
+    <meta name="paper-year"    content="2025">
+    <meta name="paper-author"  content="Hyeon-Ho Yang, Sang-Gil Lee, Eun-Hyuck Lee, Jae-Hung Han">
+    <meta name="paper-journal" content="Journal of Fluids and Structures">
+    <meta name="paper-tags"    content="flapping wing, FSI, FEM">
+    <meta name="paper-doi"     content="https://doi.org/10.1016/j.jfluidstructs.2024.104263">
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Noto Sans KR', Arial, sans-serif; margin: 0; padding: 0;
+               background: #f5f5f5; color: #333; display: flex; justify-content: center;
+               align-items: center; min-height: 100vh; }
+        .slide { width: 1680px; min-height: 720px; background: white;
+                 box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex;
+                 flex-direction: column; margin: 20px 0; }
+        .header { background: #005b96; color: white; padding: 20px 30px;
+                  display: flex; flex-direction: column; box-sizing: border-box; }
+        .title { font-size: 26px; font-weight: bold; margin-bottom: 8px; }
+        .authors { font-size: 15px; margin-bottom: 4px; }
+        .journal { font-size: 14px; opacity: 0.9; }
+        .summary-container { background: #f0f5fa; padding: 12px 30px;
+                             border-bottom: 1px solid #e1e5e8; }
+        .summary-title { font-size: 16px; font-weight: bold; margin-bottom: 5px; color: #005b96; }
+        .summary { font-size: 14px; line-height: 1.5; }
+        .content { display: grid; grid-template-columns: repeat(3, 1fr);
+                   gap: 15px; padding: 15px; flex: 1; }
+        .section { background: white; border: 1px solid #e0e0e0; border-radius: 6px;
+                   padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                   max-height: 320px; overflow-y: auto; }
+        .section-title { color: #005b96; font-size: 16px; font-weight: bold;
+                         margin-bottom: 10px; padding-bottom: 5px;
+                         border-bottom: 2px solid #005b96; }
+        .section-content { font-size: 13px; line-height: 1.6; }
+        .term { font-weight: bold; color: #005b96; }
+        .bullet { margin-left: 8px; text-indent: -8px; padding-left: 8px; margin-bottom: 6px; }
+        .bullet:before { content: "\u2022 "; color: #005b96; }
+        .eng { color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="slide">
+        <div class="header">
+            <div class="title">Numerical simulation framework of bird-inspired ornithopter in forward flight</div>
+            <div class="authors">Hyeon-Ho Yang, Sang-Gil Lee, Eun-Hyuck Lee, Jae-Hung Han (KAIST)</div>
+            <div class="journal">Journal of Fluids and Structures 133 (2025) 104263 | DOI: 10.1016/j.jfluidstructs.2024.104263</div>
+        </div>
+        <div class="summary-container">
+            <div class="summary-title">논문 요약</div>
+            <div class="summary">
+                본 연구는 조류 모방 오니솝터(Ornithopter)의 전진비행 해석을 위한 고효율 수치 시뮬레이션 프레임워크 ORNISP를 개발한다.
+                수정된 비정상 와류 격자법(UVLM)에 Pseudo Leading-Edge Vortex(PLEV) 모델과 Adaptive Wake-Shedding(AWS) 기법을 새롭게 도입하여 앞전 와류 및 스팬방향 후류 이탈 효과를 효율적으로 반영한다.
+                유연 날개의 구조 모델은 성분 모드 합성(Component Mode Synthesis) 기반 감차 모델로 표현하고, 다중 유연체 동역학(MFBD)과 느슨 결합(loosely coupled) 방식으로 유체-구조 연성(FSI) 시뮬레이션을 수행한다.
+                풍동 시험 대비 평균 양력·추력 오차 10% 이내, KAIST Robotic Falcon(KRoFalcon) 실제 비행 데이터 대비 비행 속도·받음각 오차 7% 이내의 정확도를 달성하며, CFD-CSD 방식 대비 획기적으로 적은 계산 비용으로 초기 설계 단계 파라메트릭 연구에 적합하다.
+            </div>
+        </div>
+        <div class="content">
+            <div class="section">
+                <div class="section-title">Introduction: 연구 동기</div>
+                <div class="section-content">
+                    <div class="bullet">날갯짓 비행체(FWAV)는 빠른 기동성, 자연 위장, 환경 적응 비행 등의 강점으로 군사·민간 분야에서 높은 관심을 받음</div>
+                    <div class="bullet">조류 모방 오니솝터는 유연한 주익과 꼬리 날개로 구성되며, 주익은 양력·추력 생성, 꼬리 날개는 피칭 모멘트 안정화를 담당</div>
+                    <div class="bullet">플래핑 운동의 시간 척도가 비행체 동적 모드 특성 시간 척도에 근접하여, 사이클 평균화(cycle-averaging) 방법을 적용할 수 없음</div>
+                    <div class="bullet">고충실도 CFD-CSD 연성 시뮬레이션은 4회 플래핑 사이클 해석에만 약 10시간이 소요되는 극도로 높은 계산 비용이 문제</div>
+                    <div class="bullet">기존 준정상(quasi-steady) 공력 모델 기반 저차 FSI 모델은 계산 효율은 높지만 비정상 후류 효과를 정확히 반영하지 못함</div>
+                    <div class="bullet">비정상 와류 격자법(UVLM)은 자유 후류 롤업 시뮬레이션을 통해 후류 효과를 반영하나, 앞전 와류(LEV)를 고려하지 못하는 한계가 있음</div>
+                    <div class="bullet">유연 날개의 공탄성(aeroelastic) 효과가 오니솝터의 공력 성능과 전체 비행 동역학에 미치는 영향이 크므로 FSI 고려가 필수적임</div>
+                    <div class="bullet">따라서 고효율·고충실도 FSI 시뮬레이션 프레임워크 개발이 오니솝터 초기 설계 최적화에 절실히 요구됨</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Related Works: 관련 연구</div>
+                <div class="section-content">
+                    <div class="bullet">DeLaurier (1993): 날갯짓 날개의 공탄성 해석을 위한 감차 공력 모델 제안; 준정상 모델의 선구적 연구</div>
+                    <div class="bullet">Katz & Plotkin (2001): 3차원 운동 박익에 대한 UVLM을 정형화; 자유 후류 롤업 시뮬레이션의 기반 방법론 제시</div>
+                    <div class="bullet">Stanford & Beran (2010): UVLM으로 날개 형상에 대한 양력·추력·동력 편미분 산출, 추진 효율 최적화에 활용</div>
+                    <div class="bullet">Roccia et al. (2013): UVLM에 앞전 후류 이탈을 포함한 수정 버전 도입; 복잡한 날개 운동 시 수치 불안정성 유발</div>
+                    <div class="bullet">Nguyen et al. (2016): UVLM에 단순화된 앞전 흡입 유추 모델 추가로 곤충 공력학의 고양력 메커니즘을 성공적으로 시뮬레이션</div>
+                    <div class="bullet">Wang et al. (2017): 날개 비틀림 파라메트릭 해석·최적화용 효율적 FSI 모델 제안; 해석적 비틀림 모델과 준정상 공력 모델 결합</div>
+                    <div class="bullet">Schwab et al. (2019): 모달 해석 기반 구조 모델과 블레이드 요소 이론 준정상 공력 모델을 결합한 저차 FSI 모델 제시</div>
+                    <div class="bullet">Yang et al. (2018): 조류 모방 오니솝터 DOVE 개발; CFD-CSD 결합 시뮬레이션으로 유연 날개 설계 선별; 본 연구가 극복하고자 하는 계산 비용의 문제를 드러냄</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Method: 새로운 접근 방법</div>
+                <div class="section-content">
+                    <div class="bullet"><span class="term">PLEV 모델</span> (Pseudo Leading-Edge Vortex): 앞전 와류와 고받음각 유동 분리 효과를 UVLM 내에서 수치적으로 모사하는 신규 기법으로 수치 불안정성 없이 LEV 효과 반영</div>
+                    <div class="bullet"><span class="term">AWS 기법</span> (Adaptive Wake-Shedding): 후류 이탈 엣지에서의 유동 방향에 따라 후류 강도를 조절하여 스팬방향 유동에 의한 날개 끝 후류 이탈을 정확히 포착</div>
+                    <div class="bullet">수정 UVLM(PLEV+AWS)과 다중 유연체 동역학(MFBD) 모델을 <span class="eng">loosely coupled</span> 방식으로 통합하여 FSI 시뮬레이션 구현</div>
+                    <div class="bullet">유연 날개 구조 모델: 빔·쉘 유한 요소 → <span class="term">성분 모드 합성(CMS)</span>으로 모달 기반 감차 모델 생성 → 계산 효율 향상</div>
+                    <div class="bullet">상용 소프트웨어 RecurDyn의 MFBD 해석기를 사용한 다중 유연체 동역학 시뮬레이션 수행</div>
+                    <div class="bullet">MATLAB App 형태의 <span class="term">ORNISP</span> 개발: 날개 형상·특성·비행 조건을 설정 가능한 범용 오니솝터 시뮬레이션 플랫폼</div>
+                    <div class="bullet">트림 조건 탐색: 종방향 자유도(DOF) 구속 해제 후 시뮬레이션이 안정 순항 트림 조건으로 자연 수렴하도록 유도</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Experiment: 실험 방법과 결과</div>
+                <div class="section-content">
+                    <div class="bullet">풍동 시험 검증: 강체 날개와 유연 날개 모델에 대해 수정 UVLM의 평균 양력·추력 예측 정확도 확인; 오차 &lt; 10%</div>
+                    <div class="bullet">KRoFalcon 프로토타입 전진 비행 트림 조건 추정: 플래핑 주파수와 엘레본(elevon) 각도 4가지 조합에 대해 30초 시뮬레이션 수행</div>
+                    <div class="bullet">계산 효율: 200회 이상 플래핑 사이클 시뮬레이션에 약 5시간 소요 (16코어 Intel i9-12900K); 실시간 인자(real-time factor) = 1.7×10⁻³</div>
+                    <div class="bullet">CFD-CSD 방식 대비 비교: 기존 방식은 4 플래핑 사이클 해석에 10시간 소요 → ORNISP는 200사이클을 5시간에 처리하는 획기적 효율 달성</div>
+                    <div class="bullet">실제 비행 테스트 데이터와 비교: 비행 속도 및 받음각 시뮬레이션 결과 오차 7% 이내로 충분한 정확도 검증</div>
+                    <div class="bullet">자유 비행 vs. 제한 자유도(히빙·피칭 DOF 구속) 조건 비교: DOF 구속 시 공력 과대 추정 발생 → 자유 비행 시뮬레이션의 필요성 입증</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Discussion: 결과의 해석</div>
+                <div class="section-content">
+                    <div class="bullet">PLEV 모델은 기존 앞전 흡입 유추 모델 대비 고받음각에서의 양력 저하를 더 정확히 재현; 조류 모방 오니솝터에 특화된 핵심 개선 사항</div>
+                    <div class="bullet">AWS 기법은 스팬방향 유동에 의한 날개 끝 후류 이탈 효과를 반영함으로써 기존 UVLM의 고정된 이탈 모델 한계를 극복</div>
+                    <div class="bullet">느슨 결합 FSI 모델은 강 결합 방식 대비 계산 비용을 대폭 절감하면서도 실용적 공력 예측 정밀도를 유지함을 실험적으로 확인</div>
+                    <div class="bullet">히빙·피칭 구속 조건에서 공력 과대 추정이 발생하는 원인은 자유 비행 시 비행체의 수직·회전 운동이 날개 상대 유동 속도를 변화시키기 때문임</div>
+                    <div class="bullet">오차 10% 이내 수준은 초기 설계 단계 파라메트릭 탐색 도구로서 충분한 실용적 정밀도를 확보; 최종 설계에는 고충실도 검증 필요</div>
+                    <div class="bullet">현재 프레임워크는 전진 비행에 최적화되어 있으며, 이착륙·호버링 등 복잡한 기동 모드로의 확장은 향후 과제로 남겨짐</div>
+                    <div class="bullet">ORNISP의 MATLAB App 구조는 접근성을 높이고 다양한 오니솝터 모델에 유연하게 적용 가능한 범용 연구 플랫폼으로서의 가치를 가짐</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Conclusion: 최종 요약</div>
+                <div class="section-content">
+                    <div class="bullet">수정 UVLM(PLEV+AWS)과 MFBD를 결합한 ORNISP 프레임워크로 조류 모방 오니솝터 전진 비행의 고효율·고충실도 FSI 시뮬레이션 가능함을 입증</div>
+                    <div class="bullet">풍동 시험(오차 &lt;10%)과 KRoFalcon 비행 테스트(오차 &lt;7%) 검증을 통해 실용적 정밀도 확인</div>
+                    <div class="bullet">CFD-CSD 방식 대비 현저히 낮은 계산 비용으로 초기 설계 단계의 파라메트릭 연구와 최적화에 적합한 실용적 도구 제공</div>
+                    <div class="bullet">DOF 제한 시뮬레이션의 공력 과대 추정 문제를 확인하여 자유 비행 시뮬레이션의 중요성을 강조; 향후 비행 제어 연구에 중요한 지침 제시</div>
+                    <div class="bullet">향후 연구에서 이착륙, 기동 비행, 더 많은 자유도를 포함한 복잡한 비행 모드로 적용 범위 확장 예정</div>
+                    <div class="bullet">ORNISP는 다양한 날개 형상·특성·비행 조건 설정이 가능한 범용 플랫폼으로, 오니솝터 연구 커뮤니티 전반에 기여 가능</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
