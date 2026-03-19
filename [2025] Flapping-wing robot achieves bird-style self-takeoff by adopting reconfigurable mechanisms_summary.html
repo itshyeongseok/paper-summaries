@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="paper-title"   content="Flapping-wing robot achieves bird-style self-takeoff by adopting reconfigurable mechanisms">
+    <meta name="paper-year"    content="2025">
+    <meta name="paper-author"  content="Ang Chen, Bifeng Song, Kang Liu, Zhihe Wang, Dong Xue, Hongduo Qi">
+    <meta name="paper-journal" content="Science Advances">
+    <meta name="paper-tags"    content="flapping wing, FSI, control, robotics, optimization">
+    <meta name="paper-doi"     content="10.1126/sciadv.adx0465">
+    <style>
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Noto Sans KR', 'Arial', sans-serif;
+            margin: 0; padding: 0; background: #f5f5f5; color: #333;
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+        }
+        .slide {
+            width: 1680px; min-height: 720px; position: relative;
+            background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column; margin: 20px 0;
+        }
+        .header {
+            background: #005b96; color: white; padding: 20px 30px;
+            display: flex; flex-direction: column; width: 100%; box-sizing: border-box;
+        }
+        .title { font-size: 26px; font-weight: bold; margin-bottom: 8px; }
+        .authors { font-size: 15px; margin-bottom: 4px; }
+        .journal { font-size: 14px; opacity: 0.9; }
+        .summary-container {
+            background: #f0f5fa; padding: 12px 30px;
+            border-bottom: 1px solid #e1e5e8; max-width: 100%;
+        }
+        .summary-title { font-size: 16px; font-weight: bold; margin-bottom: 5px; color: #005b96; }
+        .summary { font-size: 14px; line-height: 1.5; }
+        .content {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, auto); gap: 15px; padding: 15px; flex: 1;
+        }
+        .section {
+            background: white; border: 1px solid #e0e0e0; border-radius: 6px;
+            padding: 12px; display: flex; flex-direction: column;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); max-height: 320px; overflow-y: auto;
+        }
+        .section-title {
+            color: #005b96; font-size: 16px; font-weight: bold;
+            margin-bottom: 10px; padding-bottom: 5px; border-bottom: 2px solid #005b96;
+        }
+        .section-content { font-size: 13px; line-height: 1.6; overflow-y: visible; }
+        .term { font-weight: bold; color: #005b96; }
+        .bullet {
+            margin-left: 8px; text-indent: -8px; padding-left: 8px; margin-bottom: 6px;
+        }
+        .bullet:before { content: "\2022 "; color: #005b96; }
+        .eng { color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="slide">
+        <div class="header">
+            <div class="title">Flapping-wing robot achieves bird-style self-takeoff by adopting reconfigurable mechanisms</div>
+            <div class="authors">Ang Chen, Bifeng Song, Kang Liu, Zhihe Wang, Dong Xue, Hongduo Qi</div>
+            <div class="journal">Science Advances, Vol. 11, eadx0465 (2025) | DOI: 10.1126/sciadv.adx0465</div>
+        </div>
+        <div class="summary-container">
+            <div class="summary-title">논문 요약</div>
+            <div class="summary">
+                조류의 저속 비행 날갯짓—<span class="term">플랩-스윕-폴드 (FSF)</span> <span class="eng">(Flap-Sweep-Fold)</span> 운동—을 새 척추동물의 실제 날갯짓에서 영감을 얻어 새로운 재구성 가능한 날개 구동 메커니즘으로 구현한 조류 모방 플래핑 윙 로봇 RoboFalcon2.0을 제시한다. 풍동 실험과 전산유체역학(CFD) 시뮬레이션을 통해 스윕 진폭이 양력 및 피칭 모멘트에 미치는 영향을 정량적으로 분석하였으며, MuJoCo 물리 엔진 기반의 동역학 시뮬레이션을 통해 이륙 시 피치 제어 가능성을 검증하였다. 실제 비행 실험에서 RoboFalcon2.0은 보조 장치 없이 독립적인 조류형 자기 이륙을 성공적으로 수행하였으며, 이 연구는 척추동물형 날갯짓 원리를 통한 플래핑 윙 로봇의 새로운 가능성을 제시한다.
+            </div>
+        </div>
+        <div class="content">
+            <div class="section">
+                <div class="section-title">Introduction: 연구 동기</div>
+                <div class="section-content">
+                    <div class="bullet">날아다니는 척추동물(조류·박쥐)은 저속 비행 시 <span class="term">비대칭 호버링</span> <span class="eng">(asymmetrical hovering)</span>을 채택한다. 다운스트로크에서는 날개를 완전히 펼쳐 앞-아래 방향으로 스윕하고, 업스트로크에서는 날개를 접어 공기역학적으로 비활성 회수 동작을 한다.</div>
+                    <div class="bullet">대부분의 기존 플래핑 윙 로봇은 곤충·벌새 스타일의 대칭 호버링을 모방하며, 날개가 종축만을 중심으로 왕복 회전하는 <span class="term">단일 자유도</span> <span class="eng">(single DOF)</span> 날갯짓에 의존해 수동 공기탄성 비틀림으로 추력을 생성한다.</div>
+                    <div class="bullet">조류 스케일의 자기 이륙이 가능한 플래핑 로봇은 여전히 점프, 투석기, 기타 보조 장치에 의존해야 하며, 실제 척추동물처럼 앞-아래 다운스트로크와 접힌 업스트로크를 결합한 로봇은 존재하지 않는다.</div>
+                    <div class="bullet">조류의 날갯짓은 플래핑, 스윕, 폴딩 세 가지 <span class="term">자유도</span> <span class="eng">(Degree of Freedom, DOF)</span>를 동일한 날갯짓 주기 안에서 위상을 달리해 결합한 <span class="term">FSF 운동</span>을 수행하며, 이 운동은 비행 속도에 따라 독립적으로 조절 가능해야 한다.</div>
+                    <div class="bullet">각 자유도에 별도 액추에이터를 배치하면 무게·전력·제어 대역폭의 모순이 생기므로, 하나의 고출력 주 액추에이터의 구동을 원하는 날개 운동으로 변환하는 <span class="term">재구성 가능한 메커니즘</span> <span class="eng">(reconfigurable mechanism)</span>이 필요하다.</div>
+                    <div class="bullet">선행 연구인 RoboFalcon에서는 <span class="term">원뿔형 로커 메커니즘</span> <span class="eng">(Conical Rocker Mechanism, CRM)</span>을 도입해 순항 비행 날갯짓을 구현했지만, 저속 이륙·호버링에 필요한 FSF 운동을 구현하지 못했다.</div>
+                    <div class="bullet">본 연구는 RoboFalcon2.0을 통해 보조 없이 독립 이륙이 가능한 중형 조류 스케일(날개폭 1.2 m, 800 g) 플래핑 윙 로봇을 처음으로 제시함으로써, 생체 모방 항공학의 새로운 지평을 개척하고자 한다.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Related Works: 관련 연구</div>
+                <div class="section-content">
+                    <div class="bullet">Poore et al. (1997)은 날개 업스트로크와 비행의 진화적 기원을 연구하였으며, 조류 날개의 업스트로크가 비행 진화에 핵심적 역할을 함을 제시하였다.</div>
+                    <div class="bullet">Chin &amp; Lentink (2017)은 현생 척추동물의 능동 비행을 가능케 하는 전지(前肢) 특화 구조를 분석하여 날개 설계에 영감을 제공하였다.</div>
+                    <div class="bullet">Ajanic et al. (2020, 2022) 은 조류 날개·꼬리 형태 변형을 드론에 적용하여 비행 능력과 급선회 기동성을 크게 향상시켰다. <span class="eng">(Sci. Robot.)</span></div>
+                    <div class="bullet">Ramezani et al. (2017) 은 박쥐의 비행 특화를 연구하기 위한 생체 모방 로봇 플랫폼을 제시하였으며, 박쥐형 다관절 날개의 공학적 구현 가능성을 보였다. <span class="eng">(Sci. Robot.)</span></div>
+                    <div class="bullet">Karásek et al. (2018) 은 꼬리 없는 공중 플래퍼로 파리가 급선회에 토크 결합을 사용함을 밝혀, 소형 플래핑 로봇 설계에 영향을 주었다. <span class="eng">(Science)</span></div>
+                    <div class="bullet">Chen et al. (2022) 은 RoboFalcon에서 형태 결합 날갯짓 패턴을 수행하는 민첩한 생체 모방 플래핑 날개 기체 구동 전략을 제안하였다. <span class="eng">(IEEE Trans. Robot.)</span></div>
+                    <div class="bullet">Wang et al. (2024)는 오스프리에서 영감을 얻은 독수리 스케일 플래핑 윙 로봇의 자기 이륙 전략 및 비행 실험을 발표하였으나, 여전히 보조 시스템에 의존한다. <span class="eng">(ICRA 2024)</span></div>
+                    <div class="bullet">Todorov et al. (2012)의 MuJoCo 물리 엔진은 모델 기반 제어에 광범위하게 활용되며, 본 연구의 동역학 시뮬레이션 플랫폼으로 채택되었다.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Method: 새로운 접근 방법</div>
+                <div class="section-content">
+                    <div class="bullet">RoboFalcon2.0은 BLDC 모터 → 2단 감속 → <span class="term">원뿔형 로커 메커니즘 (CRM)</span>으로 구성된 주 구동계를 통해 날개를 플래핑하며, 박쥐형 3절 날개 골격(상완골-요골-손뼈)에 폴리에스터 막을 씌운 구조다.</div>
+                    <div class="bullet"><span class="term">폴딩 디커플러</span> <span class="eng">(Folding Decoupler)</span>: CRM의 회전 운동을 종방향 왕복 운동으로 변환하여 날개 접힘을 구동하며, 동시에 후방 서보를 통해 날개 최대 전개 범위를 독립 제어한다.</div>
+                    <div class="bullet"><span class="term">스윕 디커플러</span> <span class="eng">(Sweeping Decoupler)</span>: 플래핑 샤프트의 왕복 회전을 크랭크샤프트·볼조인트 링크를 통해 날개의 전후방 스윕 운동으로 변환한다. 스윕 진폭을 5°~25° 범위에서 독립 조절 가능하다.</div>
+                    <div class="bullet">폴딩과 스윕은 플래핑과 각각 90°, 180° 위상차를 갖도록 기계적으로 동기화된다. 다운스트로크 시 날개가 앞으로 스윕하고 업스트로크 시 뒤로 후퇴·접히는 조류 날갯짓을 충실히 재현한다.</div>
+                    <div class="bullet">풍동 실험은 오픈젯 풍동에 6축 로드셀을 장착한 RoboFalcon2.0 실물을 세 가지 비행 상태(v=0 m/s, 45 deg; v=5 m/s, alpha=22.5 deg; v=7 m/s, alpha=0 deg)와 세 가지 스윕 진폭으로 측정하였다.</div>
+                    <div class="bullet">CFD 시뮬레이션은 Q-기준 와도 가시화를 사용하여 선단 와류(LEV) 강도와 압력 분포를 분석하고, 스윕 진폭에 따른 공기역학적 차이를 정량화하였다.</div>
+                    <div class="bullet">MuJoCo 기반 이륙 동역학 시뮬레이션에서는 스트립 이론 기반 비정상 공기역학 모델을 풍동 데이터와 결합하여 실시간 힘 입력으로 활용하였다.</div>
+                    <div class="bullet">실물 비행 시험에서는 조류형 자기 이륙, 스윕 진폭 조절에 의한 피치 제어, 전진 비행 전환까지 일련의 이륙 시퀀스를 검증하였다.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Experiment: 실험 방법과 결과</div>
+                <div class="section-content">
+                    <div class="bullet">풍동 실험에서 스윕 진폭이 증가할수록 고주파수(5~6 Hz) 구간에서 양력이 유의미하게 향상되었으며, 특히 저속 비행 상태(v=0, alpha=45 deg)에서 양력 향상이 두드러졌다.</div>
+                    <div class="bullet">스윕 진폭 변화는 추력에는 통계적으로 유의미한 영향을 미치지 않았다. 이는 스윕이 추력보다 양력과 모멘트에 기여함을 의미한다.</div>
+                    <div class="bullet">모든 세 가지 비행 상태에서 스윕 진폭이 증가할수록 기수 올림(nose-up) 피칭 모멘트가 유의미하게 증가하였으며, 이 효과는 저속일수록 두드러졌다.</div>
+                    <div class="bullet">CFD 분석에서 최대 스윕 진폭에서 선단 와류(LEV) 강도가 더 크게 나타났으며, 이는 더 큰 압력 차이와 양력 향상으로 이어졌다.</div>
+                    <div class="bullet">압력 중심(CP) 위치 분석 결과, 최대 스윕 진폭에서 다운스트로크 후반·업스트로크 초반에 CP가 더 앞에 위치하여 기수 올림 피칭 모멘트 팔이 길어졌다.</div>
+                    <div class="bullet">MuJoCo 동역학 시뮬레이션에서 스윕 진폭 증가를 통한 피치 제어 전략이 이륙 시 기수 올림 기동을 가능하게 함을 확인하였다.</div>
+                    <div class="bullet">실제 비행 시험에서 RoboFalcon2.0은 외부 발사 장치 없이 독립적인 조류형 자기 이륙에 성공하였으며, 스윕 진폭 제어를 통한 피치 조정으로 전진 비행으로의 전환이 이루어졌다.</div>
+                    <div class="bullet">이륙 과정에서 순환 평균 양력(cycle-averaged lift)이 로봇 자체 중량(800 g)을 초과하였으며, FSF 운동의 양력 향상 효과가 실질적 이륙을 가능케 함을 입증한다.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Discussion: 결과의 해석</div>
+                <div class="section-content">
+                    <div class="bullet">스윕 진폭 증가에 따른 양력 향상은 주로 선단 와류(LEV)의 강도 증가에 기인하며, 이는 날개의 스윕 운동이 와류 형성을 촉진하는 비정상 공기역학 메커니즘임을 시사한다.</div>
+                    <div class="bullet">기존 단순 플래핑 날개의 준정상 공기역학 모델은 RoboFalcon2.0과 같이 날개 형상이 크게 변하는 경우에 적용하기 어려우며, 스트립 이론 기반의 비정상 보정 모델이 필요함을 확인하였다.</div>
+                    <div class="bullet">스윕 기반 피치 제어 전략은 저속 이륙 시 꼬리 엘리베이터의 효율이 극도로 낮은 상황을 보완하는 효과적인 대안으로, 조류의 날개 스윕을 통한 피치 조절과 유사한 생체 역학적 원리를 따른다.</div>
+                    <div class="bullet">CRM·폴딩 디커플러·스윕 디커플러의 조합은 단일 고출력 모터로 3자유도 날갯짓을 구현하면서도 각 자유도를 독립 제어할 수 있는 설계 패러다임을 제시한다.</div>
+                    <div class="bullet">비정상 인자의 정확도는 보다 정밀한 비정상 모델보다 낮다는 한계가 있으며, 날개 형상이 크게 변형되는 FSF 운동에서의 정밀 공기역학 모델 개발이 향후 과제다.</div>
+                    <div class="bullet">현재 RoboFalcon2.0은 5개의 제어 자유도를 갖지만, 이륙 후 속도 범위에서의 제어 안정성과 기동 능력은 추가 연구가 필요하다.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Conclusion: 최종 요약</div>
+                <div class="section-content">
+                    <div class="bullet">RoboFalcon2.0은 폴딩 디커플러와 스윕 디커플러를 결합한 재구성 가능한 메커니즘을 통해 조류 저속 비행의 핵심 날갯짓인 FSF 운동을 중형 조류 스케일 로봇(날개폭 1.2 m, 800 g)에서 최초로 구현하였다.</div>
+                    <div class="bullet">풍동 실험과 CFD 분석을 통해 스윕 진폭이 양력과 피칭 모멘트를 독립적으로 조절하는 효과적인 제어 수단임을 정량적으로 검증하였으며, LEV 강도와 압력 중심 이동의 조합으로 설명된다.</div>
+                    <div class="bullet">스트립 이론 기반 비정상 공기역학 모델과 MuJoCo 동역학 시뮬레이션의 결합을 통해 FSF 날갯짓 이륙 시나리오를 시뮬레이션에서 성공적으로 재현하였다.</div>
+                    <div class="bullet">실제 비행 시험에서 RoboFalcon2.0은 보조 장치 없이 독립적인 조류형 자기 이륙을 달성함으로써, FSF 날갯짓과 스윕 기반 피치 제어의 실용성을 실증하였다.</div>
+                    <div class="bullet">척추동물형 구동 원리(vertebrate-like actuation principles)를 플래핑 윙 로봇에 적용함으로써, 보다 생체 모방적인 플래핑 윙 설계의 새로운 방향을 제시한다.</div>
+                    <div class="bullet">향후 연구 방향으로는 더 정밀한 비정상 공기역학 모델, 이륙 후 제어 전략 최적화, 꼬리 구조 통합을 통한 3축 제어 강화, 에너지 효율 향상을 위한 날개 소재 최적화 등이 있다.</div>
+                    <div class="bullet">조류형 자기 이륙 능력은 감시, 배달, 생태 모니터링 등 다양한 실용 응용으로 이어질 수 있으며, 본 연구가 그 가능성을 열었다.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
