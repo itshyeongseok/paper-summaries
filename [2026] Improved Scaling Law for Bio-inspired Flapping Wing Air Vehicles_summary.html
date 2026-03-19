@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="paper-title"   content="Improved Scaling Law for Bio-inspired Flapping Wing Air Vehicles">
+    <meta name="paper-year"    content="2026">
+    <meta name="paper-author"  content="Liu Liu, Bifeng Song, Xiaru Liu, Dong Xue, Jianlin Xuan, Yugang Zhang">
+    <meta name="paper-journal" content="Journal of Bionic Engineering">
+    <meta name="paper-tags"    content="flapping wing, optimization, scaling law">
+    <meta name="paper-doi"     content="https://doi.org/10.1007/s42235-026-00854-5">
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Noto Sans KR', Arial, sans-serif; margin: 0; padding: 0;
+               background: #f5f5f5; color: #333; display: flex; justify-content: center;
+               align-items: center; min-height: 100vh; }
+        .slide { width: 1680px; min-height: 720px; background: white;
+                 box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex;
+                 flex-direction: column; margin: 20px 0; }
+        .header { background: #005b96; color: white; padding: 20px 30px;
+                  display: flex; flex-direction: column; box-sizing: border-box; }
+        .title { font-size: 26px; font-weight: bold; margin-bottom: 8px; }
+        .authors { font-size: 15px; margin-bottom: 4px; }
+        .journal { font-size: 14px; opacity: 0.9; }
+        .summary-container { background: #f0f5fa; padding: 12px 30px;
+                             border-bottom: 1px solid #e1e5e8; }
+        .summary-title { font-size: 16px; font-weight: bold; margin-bottom: 5px; color: #005b96; }
+        .summary { font-size: 14px; line-height: 1.5; }
+        .content { display: grid; grid-template-columns: repeat(3, 1fr);
+                   gap: 15px; padding: 15px; flex: 1; }
+        .section { background: white; border: 1px solid #e0e0e0; border-radius: 6px;
+                   padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                   max-height: 320px; overflow-y: auto; }
+        .section-title { color: #005b96; font-size: 16px; font-weight: bold;
+                         margin-bottom: 10px; padding-bottom: 5px;
+                         border-bottom: 2px solid #005b96; }
+        .section-content { font-size: 13px; line-height: 1.6; }
+        .term { font-weight: bold; color: #005b96; }
+        .bullet { margin-left: 8px; text-indent: -8px; padding-left: 8px; margin-bottom: 6px; }
+        .bullet:before { content: "\2022 "; color: #005b96; }
+        .eng { color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="slide">
+        <div class="header">
+            <div class="title">Improved Scaling Law for Bio-inspired Flapping Wing Air Vehicles</div>
+            <div class="authors">Liu Liu, Bifeng Song, Xiaru Liu, Dong Xue, Jianlin Xuan, Yugang Zhang</div>
+            <div class="journal">Journal of Bionic Engineering &nbsp;|&nbsp; 2026 &nbsp;|&nbsp; DOI: 10.1007/s42235-026-00854-5</div>
+        </div>
+        <div class="summary-container">
+            <div class="summary-title">논문 요약</div>
+            <div class="summary">조류 기반 전통 스케일링 법칙은 체중-날개 면적 등 형태 파라미터를 멱함수 관계로 표현하여 생체모방 날갯짓 비행체(FWAV) 초기 설계에 활용돼 왔으나, 조류와 인공 비행체 간의 구조·에너지 시스템 차이로 인해 추정 오차가 크다. 본 연구는 네 가지 핵심 보정을 통해 개선된 스케일링 법칙을 제안한다: ①비행 관련 질량만 분리한 중량 보정계수 1.36 도출, ②스트로할 수(Strouhal number)를 활용한 날갯짓 진폭 추정 및 주기 평균 각속도(ω̄) 도입, ③피전(비둘기)·독수리 등 특정 종 데이터로 파라미터 재피팅, ④비둘기-모사 FWAV 'Dove-II' 시제품(260 g)으로 검증. Dove-II는 단일 충전으로 185분 연속 비행을 달성해 기네스 세계 기록을 갱신하였으며, 개선된 방법의 날개 면적 추정 오차가 11.6%에서 2.9%로 크게 감소함을 입증했다.</div>
+        </div>
+        <div class="content">
+            <div class="section">
+                <div class="section-title">Introduction: 연구 동기</div>
+                <div class="section-content">
+                    <div class="bullet">생체모방 날갯짓 비행체(Flapping Wing Air Vehicle, FWAV)는 기동성, 저소음, 장애물 회피 등에서 고정익·회전익 대비 유리하며 환경 모니터링·재난 대응 분야에 활용된다.</div>
+                    <div class="bullet">현재 안정 비행 가능한 FWAV는 전 세계 약 30종에 불과하고, 실용화 사례는 극히 제한적이어서 다양한 임무·크기 요구에 대응하는 신속·정확한 초기 설계 방법이 절실하다.</div>
+                    <div class="bullet">기존 조류 스케일링 법칙은 수 그램~수십 킬로그램의 광범위한 종을 통계한 멱함수로, 동일 체중이라도 비행 특성이 전혀 다른 종(참매·청둥오리·꿩 등)을 혼용해 파라미터 분산이 크다.</div>
+                    <div class="bullet">조류는 생화학 에너지(지방 11,000 Wh/kg)를 활용하지만 FWAV는 리튬 배터리(200–400 Wh/kg)를 사용하며, 비행 기능에 관계없는 장기(생식·배설계 등)의 질량까지 포함된 체중을 그대로 적용하면 설계 오류가 발생한다.</div>
+                    <div class="bullet">날갯짓 주파수 추정에서 기존 법칙은 체중만 사용하나, 실제로는 날개 길이가 주파수 변화와 더 강한 상관관계(잔차 0.12 vs. 0.43)를 가진다.</div>
+                    <div class="bullet">날갯짓 진폭(θ)은 기존 법칙에서 완전히 무시되어 왔으나, 양력과 추력 모두에 주파수만큼 중요한 영향을 미친다.</div>
+                    <div class="bullet">동일 체중(1000 g)의 Buteo lagopus(날개면적 2510 cm²), Anas boschas(1063 cm²), Crax rubra(880 cm²)처럼 비행 특성에 따라 형태 파라미터가 크게 달라 단일 스케일링 공식 적용은 부적절하다.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Related Works: 관련 연구</div>
+                <div class="section-content">
+                    <div class="bullet"><span class="term">Greenewalt (1960)</span>: 날개를 탄성 구조물로 모델링하여 날갯짓 주파수와 관성모멘트의 선형 관계를 제시; <span class="eng">fl<sup>1.15</sup> ≈ 3540</span> 상수를 조류·곤충 비행 주파수 추정 기준으로 제안.</div>
+                    <div class="bullet"><span class="term">Pennycuick (1996, 1997)</span>: 조류 날갯짓 주파수와 최적 비행 속도에 관한 현장 데이터 기반 예측식을 개선; 체중-속도 관계의 allometric 지수를 재검토.</div>
+                    <div class="bullet"><span class="term">Lang et al. (2023)</span>: 날갯짓 날개의 기하학적·운동 파라미터(주파수·진폭)가 호버링 공기역학 성능에 미치는 민감도 분석; 주파수와 진폭의 조합이 양력과 효율에 복합적 영향을 미침을 확인.</div>
+                    <div class="bullet"><span class="term">Nguyen et al. (2016)</span>: 랙-피니언 메커니즘 기반 날갯짓 시스템에서 에너지의 46.5%가 공기력 생성에 활용됨을 실험적으로 측정; 배터리 출력→기계운동 변환 효율 50–70% 제시.</div>
+                    <div class="bullet"><span class="term">Fu et al. (Claramunt 데이터 기반)</span>: 60종 조류의 날개 길이·면적·종횡비 등 형태 파라미터 데이터 정리; 비행 유형별 분류 데이터로 종-특이적 피팅의 기반 제공.</div>
+                    <div class="bullet"><span class="term">Johansson et al.</span>: 날갯짓 파워 시스템 실험에서 날갯짓 진폭 또는 주파수 조정이 추진 효율을 변화시킴을 증명; 주파수만으로 비행 성능을 추정하는 것이 불충분함을 실증.</div>
+                    <div class="bullet"><span class="term">NPU-Dove, Cloud-Owl 등</span>: 현재 개발된 안정 비행 FWAV 사례들; Cloud-Owl(1260 g)과 NPU-Dove(242 g)는 단일 충전 60분 이상 비행을 달성하며 에너지계 비율 ~24% 유지.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Method: 새로운 접근 방법</div>
+                <div class="section-content">
+                    <div class="bullet"><span class="term">중량 보정계수(η<sub>design</sub> = 1.36) 도출</span>: 비둘기 장기계별 비행 기여 비율(골격 80%, 근육 75%, 순환계 36.4%, 호흡계 50.6%, 깃털 90%)을 분석해 비행 기능 관련 질량이 체중의 58.62%임을 산정, FWAV의 비행 기능 관련 중량 비율 80%와 비교해 환산 계수 1.36 도출.</div>
+                    <div class="bullet"><span class="term">날개 면적·날개폭 재피팅</span>: Columbia Livia(비둘기류, n=18)와 Accipitridae(수리류, n=53) 종별 데이터로 멱함수를 재피팅; RMSE가 전통 법칙 대비 52.3% 감소(날개폭 0.051→0.012, 날개면적 0.006→0.003).</div>
+                    <div class="bullet"><span class="term">종횡비(AR) 보정</span>: 32개 조류 과(科)의 평균 AR 통계로 날개폭 추정값 보정; 고-AR 종(예: Phoebastria nigripes)에서 상대오차 12.8%→0.1%로 대폭 개선.</div>
+                    <div class="bullet"><span class="term">날갯짓 주파수 개선</span>: 체중 대신 손날개 길이(hand-wing length, l)를 독립변수로 사용(<span class="eng">fl<sup>1.15</sup> = 3540</span>); 진동계 이론에 근거해 고유주파수에서 공명 발생 시 에너지 효율 최대화.</div>
+                    <div class="bullet"><span class="term">스트로할 수 기반 진폭 추정</span>: St = fA/U (St 최적 범위 0.2–0.4)를 이용해 θ = 2arcsin(St·V/f·b)로 날갯짓 진폭 계산; 주기 평균 각속도 <span class="eng">ω̄ = f·θ</span>로 주파수와 진폭의 복합 효과를 단일 지표로 통합.</div>
+                    <div class="bullet"><span class="term">비행 속도·출력 추정</span>: 양력 평형식에서 V = √(25.32/a₁·m<sup>1-a₂</sup>); 비행 출력 P<sub>wing</sub> = (mg/K)·V<sub>cruise</sub> 공식으로 항력 극복에 필요한 추진 출력 계산.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Experiment: 실험 방법과 결과</div>
+                <div class="section-content">
+                    <div class="bullet">비둘기-모사 FWAV 'Dove-II'를 설계 중량 260 g, 이미지 전송 거리 4–5 km, 페이로드 ≤ 15% 조건으로 설계; 크랭크-더블록커 메커니즘으로 단자유도 날갯짓 구현.</div>
+                    <div class="bullet">저속 풍동 시험(유속 10 m/s, 8 Hz·10 Hz 조건): 8 Hz에서 Dove-I은 동시 양력·추력 조건 만족 불가(ω̄ = 8.37 rad/s < 이론값 10.47 rad/s), Dove-II(10 Hz)는 트림 양력 278 g으로 Dove-I(251 g) 대비 27 g 향상.</div>
+                    <div class="bullet">전통법 vs 개선법 추정 오차 비교(Dove-II 기준): 날개면적 RE 11.6%→2.9%, 날갯짓 주파수 RE 42.7%→28.7%, 비행 출력 RE 53.1%→33.6%.</div>
+                    <div class="bullet">비행 출력 추정: 개선법 산출 5.18 W(평균 양항비 K=7.2 적용) vs 실제 7.8 W; Dove-II 실측 양항비 K≈3.5 대입 시 7.28 W로 실험값과 오차 6.67%에 불과.</div>
+                    <div class="bullet">Dove-II 단일 충전 185분 연속 비행 달성 — China CEPREi Laboratory 인증; 기존 기네스 세계 기록(날갯짓 비행체 154분) 경신.</div>
+                    <div class="bullet">민감도 분석 결과: 날개 면적·날개폭의 탄성 계수(Eb)는 각각 ~2/3, ~1/3로 차원 해석과 일치(R² > 0.87); 종횡비·Hand Wing Index는 체중 변화에 유의하게 민감하지 않음(p > 0.05).</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Discussion: 결과의 해석</div>
+                <div class="section-content">
+                    <div class="bullet">개선된 스케일링 법칙의 날개 면적 추정 정확도가 크게 향상된 것은, 동일 체중 내에서도 비행 유형(장거리 이주 vs. 근거리 기동)에 따라 형태 파라미터가 크게 달라지기 때문에 종-특이적 데이터 피팅이 필수적임을 보여 준다.</div>
+                    <div class="bullet">주기 평균 각속도(ω̄ = f·θ)는 날갯짓 주파수와 진폭을 통합한 단일 지표로, 두 파라미터의 조합이 공기역학 성능에 미치는 복합 영향을 초기 설계 단계에서 평가할 수 있게 한다.</div>
+                    <div class="bullet">Dove-II의 실제 양항비(K ≈ 3.5)가 조류 평균(K ≈ 7.2)에 비해 낮은 점은 FWAV의 공기역학적 개선 여지가 크다는 것을 시사하며, 양항비 향상 시 비행 출력 감소 및 항속 시간 증대 효과를 기대할 수 있다.</div>
+                    <div class="bullet">본 방법은 초기 설계 단계의 파라미터 추정에 최적화되어 있어, 이후 상세 설계 최적화 반복(iteration) 횟수를 줄이는 데 핵심적 역할을 한다.</div>
+                    <div class="bullet">비둘기·독수리 두 종을 예시로 들었으나, 본 방법론은 유사한 비행 특성을 가진 다른 조류에도 확장 적용 가능하며 미래 다양한 크기와 임무의 FWAV 설계에 기여할 것으로 기대된다.</div>
+                    <div class="bullet"><span class="term">한계</span>: 날갯짓 날개의 다자유도 복잡 운동(스윕·폴딩·트위스팅 등)을 초기 설계 단계에서 완전히 반영하기 어려우며, 공기역학적 세부 최적화(날개 프로파일·비틀림 분포 등)는 별도의 CFD/실험 과정이 여전히 필요하다.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Conclusion: 최종 요약</div>
+                <div class="section-content">
+                    <div class="bullet">조류-FWAV 간 비행 기능 질량 차이를 보정한 η<sub>design</sub> = 1.36, 스트로할 수 기반 진폭 추정, 종-특이적 피팅, 주기 평균 각속도(ω̄)를 결합한 4가지 개선 사항을 통합해 전통 스케일링 법칙을 개선했다.</div>
+                    <div class="bullet">핵심 지표 추정 정확도 대폭 향상: 날개면적 오차 11.6%→2.9%, 날갯짓 주파수 42.7%→28.7%, 비행 출력 53.1%→33.6%.</div>
+                    <div class="bullet">개선된 방법으로 설계한 Dove-II는 185분 단일 충전 비행으로 기네스 세계 기록을 갱신, 방법의 실용적 유효성을 입증.</div>
+                    <div class="bullet">본 방법은 초기 설계 반복 횟수를 줄여 FWAV 개발 프로세스를 효율화하며, 다양한 생체모방 날갯짓 비행체 설계에 범용적으로 적용 가능하다.</div>
+                    <div class="bullet">향후 연구 방향: 다자유도 날갯짓 운동 모델 통합, 고양항비 날개 설계, 더 다양한 조류 종(벌새·알바트로스 등)을 포함한 종-특이적 스케일링 데이터베이스 확장.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
