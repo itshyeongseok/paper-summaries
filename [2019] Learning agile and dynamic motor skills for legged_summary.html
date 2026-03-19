@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="paper-title"   content="Learning agile and dynamic motor skills for legged robots">
+    <meta name="paper-year"    content="2019">
+    <meta name="paper-author"  content="Jemin Hwangbo, Joonho Lee, Alexey Dosovitskiy, Dario Bellicoso, Vassilios Tsounis, Vladlen Koltun, Marco Hutter">
+    <meta name="paper-journal" content="Science Robotics">
+    <meta name="paper-tags"    content="reinforcement learning, robotics, control, locomotion">
+    <meta name="paper-doi"     content="10.1126/scirobotics.aau5872">
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Noto Sans KR', Arial, sans-serif; margin: 0; padding: 0;
+               background: #f5f5f5; color: #333; display: flex; justify-content: center;
+               align-items: center; min-height: 100vh; }
+        .slide { width: 1680px; min-height: 720px; background: white;
+                 box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex;
+                 flex-direction: column; margin: 20px 0; }
+        .header { background: #005b96; color: white; padding: 20px 30px;
+                  display: flex; flex-direction: column; box-sizing: border-box; }
+        .title { font-size: 26px; font-weight: bold; margin-bottom: 8px; }
+        .authors { font-size: 15px; margin-bottom: 4px; }
+        .journal { font-size: 14px; opacity: 0.9; }
+        .summary-container { background: #f0f5fa; padding: 12px 30px;
+                             border-bottom: 1px solid #e1e5e8; }
+        .summary-title { font-size: 16px; font-weight: bold; margin-bottom: 5px; color: #005b96; }
+        .summary { font-size: 14px; line-height: 1.5; }
+        .content { display: grid; grid-template-columns: repeat(3, 1fr);
+                   gap: 15px; padding: 15px; flex: 1; }
+        .section { background: white; border: 1px solid #e0e0e0; border-radius: 6px;
+                   padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                   max-height: 320px; overflow-y: auto; }
+        .section-title { color: #005b96; font-size: 16px; font-weight: bold;
+                         margin-bottom: 10px; padding-bottom: 5px;
+                         border-bottom: 2px solid #005b96; }
+        .section-content { font-size: 13px; line-height: 1.6; }
+        .term { font-weight: bold; color: #005b96; }
+        .bullet { margin-left: 8px; text-indent: -8px; padding-left: 8px; margin-bottom: 6px; }
+        .bullet:before { content: "• "; color: #005b96; }
+        .eng { color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="slide">
+        <div class="header">
+            <div class="title">Learning agile and dynamic motor skills for legged robots</div>
+            <div class="authors">Jemin Hwangbo, Joonho Lee, Alexey Dosovitskiy, Dario Bellicoso, Vassilios Tsounis, Vladlen Koltun, Marco Hutter</div>
+            <div class="journal">Science Robotics, Vol. 4, eaau5872 (2019) | DOI: 10.1126/scirobotics.aau5872</div>
+        </div>
+        <div class="summary-container">
+            <div class="summary-title">논문 요약</div>
+            <div class="summary">본 논문은 ANYmal 4족 보행 로봇에 강화학습(Reinforcement Learning) 기반 운동 기술을 적용하여, 시뮬레이션에서 학습한 정책을 실제 하드웨어로 직접 전이(sim-to-real transfer)하는 방법론을 제시한다. 핵심 기여는 복잡한 시리즈 탄성 액추에이터(SEA) 동역학을 딥러닝 기반 "액추에이터 넷(actuator net)"으로 학습하여 현실 격차(reality gap)를 줄인 것이다. 제안 방법은 기존 모델 기반 컨트롤러 대비 속도 추종 오차를 5~7배 줄이고, 기존 최고 속도 기록을 25% 초과하는 1.5 m/s 달성 및 임의 자세에서 100% 기립 복구를 실현하였다. 시뮬레이션이 실시간보다 약 1000배 빠르게 실행되어 일반 데스크톱 PC에서 11시간 이내에 학습이 완료된다.</div>
+        </div>
+        <div class="content">
+            <div class="section">
+                <div class="section-title">Introduction: 연구 동기</div>
+                <div class="section-content">
+                    <div class="bullet">4족 보행 로봇(legged robots)은 바퀴/궤도형 로봇에 비해 험지 환경에서 활동 가능하며 구조 탐색, 건설 현장 화물 운반, 지하 터널 점검 등 다양한 응용이 기대된다.</div>
+                    <div class="bullet">기존 모듈형 컨트롤러(modular controller)는 각 서브모듈을 개별 수동 튜닝해야 해서 새 동작마다 수개월의 설계 시간이 소요되며, 고차원·비선형 시스템에서 성능이 제한된다.</div>
+                    <div class="bullet">궤적 최적화(trajectory optimization) 방법은 런타임에 막대한 계산 비용이 필요하고, 실제 하드웨어 제약(actuator limits)을 계획 단계에서 다루기 어렵다.</div>
+                    <div class="bullet">강화학습(RL)은 수동 설계를 최소화하고 엔드-투-엔드 최적화를 가능하게 하지만, 실제 로봇 훈련은 안전 문제 및 시간·비용 문제로 현실적이지 않다.</div>
+                    <div class="bullet">시뮬레이션-현실 격차(reality gap)를 극복하는 실질적인 sim-to-real 방법론이 필요하며, 특히 복잡한 시리즈 탄성 액추에이터(SEA)를 사용하는 대형 로봇에 대한 연구가 부재하다.</div>
+                    <div class="bullet">ANYmal 로봇은 12개의 SEA를 갖추고, 족적 대비 다리 길이 비율이 높아 기존 연구 대상인 단순 로봇보다 동적 제어가 훨씬 어렵다.</div>
+                    <div class="bullet">본 연구는 ANYmal에 RL 정책을 시뮬레이션에서 학습하고 물리 시스템에 직접 배포함으로써 이 공백을 채우는 것을 목표로 한다.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Related Works: 관련 연구</div>
+                <div class="section-content">
+                    <div class="bullet">Bellicoso et al. (2018): ANYmal의 모듈형 컨트롤러로 동적 보행과 야외 이동을 시연했으나, 수개월의 수동 튜닝이 필요했다.</div>
+                    <div class="bullet">Neunert et al. (2018): 접촉 동역학을 매끄럽게 근사해 물리 4족 로봇을 제어하는 궤적 최적화 방법을 제시했지만, 실시간 계산 비용이 높다.</div>
+                    <div class="bullet">Tan et al. (2018): Minitaur 로봇에 정확한 해석적 액추에이터 모델과 동역학 무작위화(dynamic randomization)로 sim-to-real 전이를 달성했으나, 직접 구동 액추에이터에만 적용 가능하다.</div>
+                    <div class="bullet">Levine &amp; Koltun (2013): 학습과 궤적 최적화를 결합해 2D 보행 컨트롤러를 훈련했으나, 시뮬레이션에 한정된다.</div>
+                    <div class="bullet">Park et al. (2017): MIT Cheetah로 5.0 m/s 이상의 고속 3D 보행을 달성했으나, 속도에 특화된 하드웨어 설계가 필요하다.</div>
+                    <div class="bullet">Gehring et al. (2016): ANYmal의 SEA를 해석적으로 모델링했으나, 지연 및 비선형 효과로 인해 정확도가 충분하지 않음을 본 논문에서 확인했다.</div>
+                    <div class="bullet">Morimoto et al. (2004): 실제 로봇의 기립 동작 학습을 시연했으나 단순한 3연결 체인 구조에 한정되어 복잡한 시스템으로 확장되지 않는다.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Method: 새로운 접근 방법</div>
+                <div class="section-content">
+                    <div class="bullet"><span class="term">하이브리드 시뮬레이터</span>: 해석적 강체 동역학(rigid-body dynamics)과 학습된 액추에이터 넷(actuator net)을 결합하여 실시간보다 약 1000배 빠른 시뮬레이션(~500,000 steps/s)을 구현한다.</div>
+                    <div class="bullet"><span class="term">액추에이터 넷(Actuator Net)</span>: 각 관절의 상태 이력(joint state history)을 입력으로 받아 토크를 출력하는 딥 네트워크를 자기지도학습(self-supervised learning)으로 실제 로봇 데이터에서 훈련한다. SEA의 지연, 마찰, 컴플라이언스를 암묵적으로 포착한다.</div>
+                    <div class="bullet"><span class="term">확률적 모델링(Stochastic Modeling)</span>: 시스템 파라미터를 무작위화하고 외란(disturbance)을 추가하여 정책이 실제 하드웨어 변동에 강건(robust)하도록 훈련한다.</div>
+                    <div class="bullet"><span class="term">정책 네트워크</span>: 두 개의 은닉층을 가진 다층 퍼셉트론(MLP)이 현재 로봇 상태와 관절 이력을 입력받아 12개 관절 위치 목표값(joint position targets)을 출력한다.</div>
+                    <div class="bullet">보상 함수(reward function)와 초기 상태 분포(initial state distribution)를 태스크별로 설계하여 속도 추종, 고속 이동, 낙상 복구 등 다양한 기술을 각각 훈련한다.</div>
+                    <div class="bullet">추론 시 CPU 단일 스레드에서 25 ms 이내로 정책 평가 완료 — 기존 모델 기반 방법에 비해 온보드 계산량이 2 오더 적다.</div>
+                    <div class="bullet">훈련은 GPU 1개 포함 일반 데스크톱 PC에서 11시간 이내 완료 가능하며, 별도 HPC 클러스터가 필요 없다.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Experiment: 실험 방법과 결과</div>
+                <div class="section-content">
+                    <div class="bullet"><span class="term">속도 추종 정확도</span>: 학습된 컨트롤러의 평균 선속도 오차 0.143 m/s, 요 레이트 오차 0.174 rad/s. 기존 모델 기반 컨트롤러 대비 선속도 오차 약 95%, 요 레이트 오차 약 60% 감소.</div>
+                    <div class="bullet"><span class="term">에너지 효율</span>: 동일 속도 명령에서 평균 토크 8.23 N·m(기존 11.7 N·m) 및 기계적 파워 78.1 W(기존 97.3 W)로, 23~36% 토크 감소 달성. 무릎 자세를 10~15° 더 펴서 자연스러운 보행 실현.</div>
+                    <div class="bullet"><span class="term">속도 추종 vs. 모듈형 컨트롤러</span>: 0.25~1.0 m/s 속도 범위에서 flying trot 대비 5~7배, dynamic lateral walk 대비 1.5~2.5배 속도 오차 감소.</div>
+                    <div class="bullet"><span class="term">고속 보행</span>: 명령 속도 1.6 m/s 설정 시 시뮬레이션에서 1.58 m/s, 실제 로봇에서 1.5 m/s 달성 — 이전 ANYmal 최고 기록(1.2 m/s) 대비 25% 향상. 하드웨어 최대 토크(40 N·m) 및 최대 관절 속도(12 rad/s) 모두 활용.</div>
+                    <div class="bullet"><span class="term">낙상 복구</span>: 9가지 무작위 초기 구성(거의 완전히 뒤집힌 자세 포함)에서 모두 성공적으로 기립. 3초 이내 자세 복구 달성.</div>
+                    <div class="bullet"><span class="term">Ablation 비교</span>: 이상적 액추에이터 모델 또는 해석적 액추에이터 모델로 훈련한 정책은 단 한 걸음도 이동하지 못하고 즉시 낙상 — 액추에이터 넷의 필수성 입증.</div>
+                    <div class="bullet">정책 네트워크가 명시적 보행 패턴 지정 없이도 자연스럽게 trot 보행 패턴을 발견하며, 저속에서는 walking trot, 고속에서는 비대칭 flying trot 구현.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Discussion: 결과의 해석</div>
+                <div class="section-content">
+                    <div class="bullet">학습 기반 접근이 기존 모델 기반 컨트롤러를 전 항목(속도, 에너지, 보행 자연스러움)에서 능가하며, 복잡한 액추에이터가 있는 대형 시스템에서도 sim-to-real이 실현 가능함을 최초로 입증했다.</div>
+                    <div class="bullet">액추에이터 넷이 핵심: SEA의 복잡한 지연·비선형 동역학을 데이터로부터 학습함으로써, 이상적 또는 해석적 모델이 완전히 실패하는 영역에서 성공한다.</div>
+                    <div class="bullet">정책은 3개월 이상 실제 로봇에서 하드웨어 변경(스프링 강성 3배 변경, 구성 변경 등) 없이도 강건하게 작동하여, 마모·변동에 대한 높은 내성을 보였다.</div>
+                    <div class="bullet"><span class="term">한계점 1 — 단일 정책의 일반화 부재</span>: 각 정책은 단일 태스크에 특화되며 여러 태스크를 동시에 수행하지 못한다. 계층적 정책 구조가 향후 해결책으로 제시된다.</div>
+                    <div class="bullet"><span class="term">한계점 2 — 인간 전문성 필요</span>: 보상 함수 설계와 초기 상태 분포 설정에 RL 이해도가 높은 엔지니어가 필요하며, 복구 정책 개발에는 약 1주일 소요됐다.</div>
+                    <div class="bullet"><span class="term">한계점 3 — 연결 액추에이터</span>: 유압 시스템처럼 액추에이터가 연결된 경우, 독립적 모델링이 충분하지 않을 수 있다.</div>
+                    <div class="bullet">계산 비용이 훈련 단계로 집중되고 추론이 경량화되어, 온보드 컴퓨팅 제약이 있는 실제 로봇 배포에 유리하다.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Conclusion: 최종 요약</div>
+                <div class="section-content">
+                    <div class="bullet">복잡한 SEA 기반 4족 로봇(ANYmal)에 RL 정책을 시뮬레이션에서 학습하고 현실 하드웨어에 직접 전이하는 실용적 방법론을 제시했다.</div>
+                    <div class="bullet">하이브리드 시뮬레이터(강체 해석 모델 + 학습된 액추에이터 넷)가 현실 격차를 효과적으로 줄이는 핵심 요소임을 실험적으로 검증했다.</div>
+                    <div class="bullet">기존 최고 성능 모델 기반 컨트롤러를 속도 정확도, 에너지 효율, 고속 운동, 낙상 복구 모든 면에서 능가하는 결과를 달성했다.</div>
+                    <div class="bullet">4족 로봇의 세 가지 복잡한 기술(속도 추종 보행, 고속 달리기, 낙상 복구)을 단일 프레임워크에서 최초로 학습 기반으로 구현했다.</div>
+                    <div class="bullet">향후 연구 방향: 계층적 정책으로 다중 태스크 일반화, 보행 지형 적응 학습, 더 복잡한 액추에이터 시스템으로 확장, 자동화된 보상 함수 설계 방법 개발.</div>
+                    <div class="bullet">본 연구는 실제 복잡한 로봇 시스템에서 순수 학습 기반 제어의 실현 가능성을 입증하며, 범용 보행 로봇 제어기 개발의 중요한 이정표가 된다.</div>
+                    <div class="bullet">코드베이스 공유 및 태스크 설명(보상 함수)만 변경하는 방식으로 새로운 동작을 쉽게 추가할 수 있어, 향후 연구 재현성과 확장성이 높다.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
