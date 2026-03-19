@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="paper-title"   content="Bioinspired wing and tail morphing extends drone flight capabilities">
+    <meta name="paper-year"    content="2020">
+    <meta name="paper-author"  content="Enrico Ajanic, Mir Feroskhan, Stefano Mintchev, Flavio Noca, Dario Floreano">
+    <meta name="paper-journal" content="Science Robotics">
+    <meta name="paper-tags"    content="morphing wing, aerodynamics, optimization, biomimetics">
+    <meta name="paper-doi"     content="10.1126/scirobotics.abc2897">
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Noto Sans KR', Arial, sans-serif; margin: 0; padding: 0;
+               background: #f5f5f5; color: #333; display: flex; justify-content: center;
+               align-items: center; min-height: 100vh; }
+        .slide { width: 1680px; min-height: 720px; background: white;
+                 box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex;
+                 flex-direction: column; margin: 20px 0; }
+        .header { background: #005b96; color: white; padding: 20px 30px;
+                  display: flex; flex-direction: column; box-sizing: border-box; }
+        .title { font-size: 26px; font-weight: bold; margin-bottom: 8px; }
+        .authors { font-size: 15px; margin-bottom: 4px; }
+        .journal { font-size: 14px; opacity: 0.9; }
+        .summary-container { background: #f0f5fa; padding: 12px 30px;
+                             border-bottom: 1px solid #e1e5e8; }
+        .summary-title { font-size: 16px; font-weight: bold; margin-bottom: 5px; color: #005b96; }
+        .summary { font-size: 14px; line-height: 1.5; }
+        .content { display: grid; grid-template-columns: repeat(3, 1fr);
+                   gap: 15px; padding: 15px; flex: 1; }
+        .section { background: white; border: 1px solid #e0e0e0; border-radius: 6px;
+                   padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                   max-height: 320px; overflow-y: auto; }
+        .section-title { color: #005b96; font-size: 16px; font-weight: bold;
+                         margin-bottom: 10px; padding-bottom: 5px;
+                         border-bottom: 2px solid #005b96; }
+        .section-content { font-size: 13px; line-height: 1.6; }
+        .term { font-weight: bold; color: #005b96; }
+        .bullet { margin-left: 8px; text-indent: -8px; padding-left: 8px; margin-bottom: 6px; }
+        .bullet:before { content: "\u2022 "; color: #005b96; }
+        .eng { color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="slide">
+        <div class="header">
+            <div class="title">Bioinspired wing and tail morphing extends drone flight capabilities</div>
+            <div class="authors">Enrico Ajanic, Mir Feroskhan, Stefano Mintchev, Flavio Noca, Dario Floreano</div>
+            <div class="journal">Science Robotics, 2020 | DOI: 10.1126/scirobotics.abc2897</div>
+        </div>
+        <div class="summary-container">
+            <div class="summary-title">논문 요약</div>
+            <div class="summary">본 연구는 북방 새매(northern goshawk)의 날개 및 꼬리 형태 변형(morphing) 전략에서 영감을 받아, 비행 체제에 따라 날개와 꼬리 면적을 능동적으로 변형할 수 있는 드론 'LisHawk'를 개발하였다. 날개 면적 41% 변화, 꼬리 면적 214% 변화를 통해 공격적 비행(aggressive flight)과 순항 비행(cruise flight)이라는 상충된 요구 사항을 동시에 충족시킬 수 있음을 실험적으로 입증하였다. 풍동 실험, 형태 최적화 시뮬레이션, 야외 비행 시험을 통해 형태 변형이 기동성(maneuverability) 270%, 민첩성(agility) 445% 향상, 소요 동력 55.4% 감소를 가져옴을 정량적으로 보여 주었다. 이 결과는 새의 비행 전략에 대한 물리적 이해를 심화시키는 동시에, 적응형 비행 드론 설계의 새로운 원리를 제시한다.</div>
+        </div>
+        <div class="content">
+            <div class="section">
+                <div class="section-title">Introduction: 연구 동기</div>
+                <div class="section-content">
+                    <div class="bullet">고정익 드론은 공기역학적 설계가 특정 비행 체제에 최적화되어 있어, 공격적 비행과 순항 비행을 동시에 잘 수행하기 어렵다는 근본적 한계를 가진다.</div>
+                    <div class="bullet">높은 기동성 <span class="eng">(maneuverability)</span>은 큰 양력·항력이 필요하지만, 빠른 순항 비행에는 낮은 항력과 높은 양항비 <span class="eng">(lift-to-drag ratio)</span>가 요구되어 두 목표가 상충한다.</div>
+                    <div class="bullet">높은 민첩성 <span class="eng">(agility)</span>은 큰 공기역학적 모멘트와 낮은 관성 모멘트 <span class="eng">(moment of inertia)</span>를 요구하며, 순항 시에는 반대로 높은 고유 안정성 <span class="eng">(inherent stability)</span>이 유리하다.</div>
+                    <div class="bullet">북방 새매는 날개와 꼬리를 능동적으로 변형하여 밀림 속 공격적 사냥과 개활지 빠른 순항이라는 상반된 요구를 성공적으로 해결한다는 사실이 선행 조류학 연구를 통해 알려져 있다.</div>
+                    <div class="bullet">기존 조류 영감 형태 변형 드론 연구는 날개 단독 변형에 집중되었으며, 날개-꼬리 형태 변형의 시너지 효과와 꼬리의 양력 생성 기여를 동시에 다룬 연구는 부재하였다.</div>
+                    <div class="bullet">본 연구는 LisHawk 드론을 통해 날개+꼬리 통합 형태 변형이 공격적 비행과 순항 비행 양쪽에서 비행 성능을 어떻게 향상시키는지를 실험적으로 규명하고자 하였다.</div>
+                    <div class="bullet">고정익 드론의 구조적 형상 고정 문제를 극복하고 적응형 비행체 설계 원리를 제시하는 데 연구의 목적이 있다.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Related Works: 관련 연구</div>
+                <div class="section-content">
+                    <div class="bullet">Tucker(1987)는 새가 빠른 비행 시 날개를 뒤로 젖혀 유선형 프로파일을 형성함으로써 필요 동력을 최소화한다고 보고하였다.</div>
+                    <div class="bullet">Tobalske 등(2007)은 새의 날개-꼬리 협력 작동이 저속 공격적 비행 시 양력·항력을 크게 증가시킨다는 것을 비행 역학 관점에서 분석하였다.</div>
+                    <div class="bullet">Ajanic 등(2020 이전 연구)은 날개 면적 변화와 비대칭 후퇴각을 통한 롤 제어 효과를 풍동 실험으로 검증하였으며, 본 연구의 직접적인 선행 작업이다.</div>
+                    <div class="bullet">Sureshkumar 등(2014)과 Iosilevskii(2014)는 전방 후퇴각 <span class="eng">(forward sweep)</span>이 피치 제어에 미치는 영향을 수치 시뮬레이션 방법으로 규명하였다.</div>
+                    <div class="bullet">Paranjape 등(2013)과 Lentink 등(2007)은 비대칭 날개 변형에 의한 롤 모멘트 생성 메커니즘을 이론·실험적으로 분석하였다.</div>
+                    <div class="bullet">Pennycuick(1989)은 새의 짧은 동체와 경량 날개 구조가 관성 모멘트를 낮춰 민첩성을 향상시킨다는 생물역학적 원리를 제시하였다.</div>
+                    <div class="bullet">Shyy 등(2013)은 저 레이놀즈 수 <span class="eng">(low Reynolds number)</span> 체제에서 날개 형상 변화가 양력 계수에 미치는 비선형 효과를 종합적으로 검토하였다.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Method: 새로운 접근 방법</div>
+                <div class="section-content">
+                    <div class="bullet">북방 새매의 날개폭·꼬리 길이·익현 <span class="eng">(wing chord)</span>을 모사한 LisHawk(284 g, 최대 날개폭 1.05 m)를 설계하고, 탄소섬유 강화 플라스틱 골격과 EPP 동체로 경량 고강성 구조를 구현하였다.</div>
+                    <div class="bullet">날개에는 9장의 인공 깃털 <span class="eng">(artificial feathers)</span>을 사용한 언더액추에이티드 <span class="eng">(underactuated)</span> 접이식 외부 섹션을 도입하여 서보모터 1개로 날개 면적을 최대 41% 변화시킨다.</div>
+                    <div class="bullet">꼬리는 9장의 인공 깃털로 구성되어 면적을 최대 214% 변화시키며, 범용 조인트를 통해 엘리베이터(xz 평면)와 러더(xy 평면) 기능을 동시에 수행한다.</div>
+                    <div class="bullet">풍동 실험(유속 8 m/s, 영각 −5°~35°)을 통해 날개·꼬리 형태 변형에 따른 양력, 항력, 피치/롤/요 모멘트를 정밀 측정하여 공기역학 데이터베이스를 구축하였다.</div>
+                    <div class="bullet">풍동 데이터 기반의 비행 역학 모델을 수립하고, 수치 최적화를 통해 다양한 비행 속도에서 소요 동력을 최소화하는 최적 형태 구성을 탐색하는 형태 최적화 연구를 수행하였다.</div>
+                    <div class="bullet">야외 풀업 기동 <span class="eng">(pull-up maneuver)</span> 시험을 4회 반복하여 선형 가속도·피치 가속도·비행 궤적을 측정함으로써 풍동 결과의 실세계 타당성을 검증하였다.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Experiment: 실험 방법과 결과</div>
+                <div class="section-content">
+                    <div class="bullet">풍동 실험에서 날개·꼬리를 펼친 구성은 접은 구성 대비 최대 양력 70.8%, 항력 63.5% 증가를 나타내어 저속 공격적 비행에서의 기동성 향상을 입증하였다.</div>
+                    <div class="bullet">피치업 모멘트는 날개·꼬리 동시 전개 시 169.7% 증가하여 34° 영각에서도 양의 피치업 모멘트를 유지함으로써 극단적 기동 중 민첩성을 보장하였다.</div>
+                    <div class="bullet">형태 최적화 결과, 날개·꼬리 접은 구성은 5 W 추력에서 날개·꼬리 편 구성보다 31.4% 빠른 비행 속도를 허용하며, 9.6 m/s 순항 속도에서 소요 동력이 55.4% 감소하였다.</div>
+                    <div class="bullet">통합 형태 최적화(날개·꼬리·엘리베이터 동시 최적화)는 최소 비행 속도를 4.0 m/s까지 낮추어, 접은 구성(7.6 m/s)과 편 구성(4.2 m/s) 대비 광범위한 속도 범위를 달성하였다.</div>
+                    <div class="bullet">야외 풀업 기동에서 날개·꼬리 전개 시 선형 가속도는 270%, 피치 가속도는 445% 향상되었으며, 최소 회전 반경이 14.3 m(접힘)에서 1.0 m(전개)로 급격히 감소하였다.</div>
+                    <div class="bullet">날개 전개 시 8° 이하 영각에서 피치 불안정성이 발생하나, 20° 이상 고영각에서는 안정 트림 <span class="eng">(stable trim)</span>을 회복하는 이중 안정성 특성을 보였다.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Discussion: 결과의 해석</div>
+                <div class="section-content">
+                    <div class="bullet">날개·꼬리 통합 형태 변형은 새가 진화적으로 발달시킨 항공 역학 전략의 공학적 유효성을 실증하며, 고정 형상 드론이 해결하지 못했던 비행 체제 간 성능 상충 문제를 근본적으로 극복한다.</div>
+                    <div class="bullet">종래 항공기에서 피치 안정과 제어에만 국한되었던 꼬리의 역할이 면적 변화를 통해 양력 생성에도 능동적으로 기여할 수 있음을 처음으로 실험적으로 규명하였다.</div>
+                    <div class="bullet">수동 원격 조종으로는 드론의 전체 비행 잠재력을 완전히 활용하기 어려웠으며, 특히 불안정 영역에서의 비행은 인간 조종사에게 과부하를 유발하였다.</div>
+                    <div class="bullet">민첩성과 기동성 사이에는 꼬리 전개와 편향이 상충 관계 <span class="eng">(trade-off)</span>를 형성하여, 최적 성능 발현을 위해서는 기동 전반에 걸친 꼬리 편향 궤적의 정밀한 최적화가 필요하다.</div>
+                    <div class="bullet">기계 학습 기반의 자율 형태 제어 알고리즘이 도입된다면 드론의 비행 잠재력이 한층 극대화될 것으로 기대되며, 이는 향후 연구의 핵심 과제이다.</div>
+                    <div class="bullet">본 연구의 조류 관찰 기반 설계 원리—날개와 꼬리의 협력 변형—가 새의 비행 전략에 대한 역공학적 이해를 심화시키는 방향으로도 활용될 수 있음을 시사한다.</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Conclusion: 최종 요약</div>
+                <div class="section-content">
+                    <div class="bullet">조류 영감 날개·꼬리 통합 형태 변형은 드론의 기동성, 민첩성, 안정성, 속도 범위, 소요 동력 모두를 비행 체제에 따라 현저히 개선하는 실용적 설계 원리임을 실험적으로 입증하였다.</div>
+                    <div class="bullet">LisHawk는 풍동, 시뮬레이션, 야외 비행이라는 세 가지 독립적 방법론의 교차 검증을 통해 결과의 신뢰성을 확보하였다.</div>
+                    <div class="bullet">적응형 형태 변형 드론은 장거리 순항, 소규모 착지, 협소 공간 비행을 모두 수행하는 차세대 무인기 플랫폼의 설계 패러다임을 제시한다.</div>
+                    <div class="bullet">향후에는 기계 학습 기반 자율 형태 제어 오토파일럿 개발, 불안정 비행 영역에서의 고속 피드백 제어 통합, 편대 비행 및 복잡 환경 자율 항법으로의 확장이 필요하다.</div>
+                    <div class="bullet">비생물학적 소재로 구성된 인공 깃털의 정밀 제조 재현성은 조류 영감 형태 변형 구조의 대량 생산 가능성을 지지하며, 상업적 응용의 발판을 마련한다.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
