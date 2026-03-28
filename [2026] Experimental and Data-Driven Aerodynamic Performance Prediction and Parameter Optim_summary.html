@@ -6,7 +6,7 @@
     <meta name="paper-year"    content="2026">
     <meta name="paper-author"  content="XiangYing GUO, Peng GAO, YangBo LI, XiaoDong YANG">
     <meta name="paper-journal" content="Aerospace Science and Technology">
-    <meta name="paper-tags"    content="flapping wing, optimization, data-driven, FSI">
+    <meta name="paper-tags"    content="flapping wing, optimization, aerodynamics, data-driven">
     <meta name="paper-doi"     content="https://doi.org/10.1016/j.ast.2026.112147">
     <style>
         html { scroll-behavior: smooth; }
@@ -36,7 +36,7 @@
         .section-content { font-size: 13px; line-height: 1.6; }
         .term { font-weight: bold; color: #005b96; }
         .bullet { margin-left: 8px; text-indent: -8px; padding-left: 8px; margin-bottom: 6px; }
-        .bullet:before { content: "• "; color: #005b96; }
+        .bullet:before { content: "\u2022 "; color: #005b96; }
         .eng { color: #666; font-style: italic; }
     </style>
 </head>
@@ -44,83 +44,82 @@
     <div class="slide">
         <div class="header">
             <div class="title">Experimental and Data-Driven Aerodynamic Performance Prediction and Parameter Optimization of Hovering Flapping Wing Micro Aerial Vehicles</div>
-            <div class="authors">XiangYing GUO, Peng GAO, YangBo LI, XiaoDong YANG | Beijing University of Technology; Shenyang Aerospace University</div>
-            <div class="journal">Aerospace Science and Technology, 2026 | DOI: https://doi.org/10.1016/j.ast.2026.112147</div>
+            <div class="authors">XiangYing GUO, Peng GAO, YangBo LI, XiaoDong YANG</div>
+            <div class="journal">Aerospace Science and Technology, 2026 | DOI: 10.1016/j.ast.2026.112147</div>
         </div>
         <div class="summary-container">
             <div class="summary-title">논문 요약</div>
-            <div class="summary">본 연구는 호버링 플래핑 윙 마이크로 에어리얼 비히클(FWMAV)의 공력 성능 예측과 파라미터 최적화를 위한 통합 설계 방법론을 제시한다. 쿼드윙 실험 플랫폼을 구축하고 날개 강성·슬랙 앵글·종횡비·날개 면적이 양력과 에너지 효율에 미치는 비선형 결합 효과를 체계적으로 분석하였다. XGBoost 서로게이트 모델은 양력 R²=0.980, 전력 R²=0.989의 높은 예측 정확도를 달성하였으며, SHAP 분석을 통해 날개 면적과 주파수가 핵심 성능 변수임을 규명하였다. 그리드 서치 최적화로 양력 60.8 gf, 효율 3.2 gf/W의 최적 설계를 도출하고 추력 대 중량비 1.39의 프로토타입으로 엔지니어링 가능성을 검증하였다.</div>
+            <div class="summary">본 연구는 호버링 플래핑 날개 소형 무인기(FWMAV)의 공력 성능 예측 및 구조 파라미터 최적화를 위한 통합 설계 방법론을 제시한다. 4날개 실험 플랫폼을 구축하여 날개 강성, 슬랙 각도, 종횟비, 날개 면적이 양력·전력·효율에 미치는 영향을 체계적으로 분석하였다. XGBoost 회귀 서로게이트 모델이 양력 R²=0.980, 전력 소비 R²=0.989의 높은 정확도를 달성하였으며, SHAP 분석으로 각 파라미터의 중요도를 해석적으로 정량화하였다. 격자 탐색 최적화로 도출된 최적 구성(β=8°, AR=3.2, S=5400mm², f=20Hz)은 60.8gf 양력과 3.2gf/W 효율을 달성하였고, 시제품은 추력-중량비 1.39, 호버링 지속시간 5.8분을 기록하였다.</div>
         </div>
         <div class="content">
             <div class="section">
                 <div class="section-title">Introduction: 연구 동기</div>
                 <div class="section-content">
-                    <div class="bullet">자연계 곤충·조류의 날갯짓 기반 호버링·선회·급기동 능력이 FWMAV 설계에 핵심 생체모방 통찰을 제공함</div>
-                    <div class="bullet">FWMAV는 수직 이착륙, 저소음, 뛰어난 기동성으로 저레이놀즈수 비행 플랫폼의 핵심 연구 방향으로 부상함</div>
-                    <div class="bullet">Delfly Nimble, RoboBee, Explobird 등 기존 프로토타입은 가능성을 입증했으나 추력비·지속시간이 여전히 제한적임</div>
-                    <div class="bullet">최고 성능 Nano Hummingbird도 최대 체공 11분에 불과하며, 마이크로 구동 전력 밀도와 복잡한 기계 전달이 근본 한계임</div>
-                    <div class="bullet">날개 강성·형상·질량 분포의 비선형 결합 효과는 불충분하게 연구되어 실용적 다목적 최적화가 어려운 상황임</div>
-                    <div class="bullet">기존 해석적 모델링·경험적 튜닝 기반 최적화는 비정상 공기역학의 다중 스케일 결합 탐색에 비효율적임</div>
-                    <div class="bullet">데이터 기반 서로게이트 모델 <span class="eng">(surrogate model)</span>은 제한된 실험 데이터로 복잡한 공력 응답을 빠르게 예측하고 다목적 최적화를 가능하게 함</div>
-                    <div class="bullet">본 연구는 실험적 특성화, 해석 가능한 머신러닝 모델링, 제약 인식 최적화를 통합한 단일 프레임워크를 제안함</div>
+                    <div class="bullet">자연의 곤충과 조류는 날개 플래핑으로 호버링·선회·급기동을 구현하며, FWMAV 설계의 핵심 생체모방 통찰을 제공함</div>
+                    <div class="bullet">FWMAV는 수직 이착륙, 저소음, 우수한 공간 기동성으로 저 레이놀즈수 비행 플랫폼의 핵심 연구 방향으로 부상함</div>
+                    <div class="bullet">DelflyNimble, RoboBee, Explobird 등 다양한 호버링 프로토타입이 개발되었으나 낙은 추력-중량비와 짧은 비행시간이 공통 한계임 (최고 성능 Nano Hummingbird도 최대 11분에 불과)</div>
+                    <div class="bullet">현 FWMAV의 성능 제약은 마이크로 드라이브의 낙은 전력 밀도, 복잡한 기계 전달 구조, 낙은 공력 효율에서 기인하며, 알의 두 요인은 현 제조 기술 한계로 개선 여지가 제한됨</div>
+                    <div class="bullet">날개 강성, 슬랙 각도, 종횟비, 날개 면적 등 구조 파라미터가 호버링 양력·효율에 크게 영향을 미침이 기존 연구에서 입증되었으나, 비선형 커플링으로 인해 복합 영향은 불충분하게 평가됨</div>
+                    <div class="bullet">전통 최적화 방법(분석 모델링, 경험적 튜닝)은 복잡한 설계 공간을 효율적으로 탐색하지 못하는 반면, 데이터 기반 서로게이트 모델은 빠른 공력 응답 예측과 다목적 최적화를 가능하게 함</div>
+                    <div class="bullet">본 연구는 실험적 특성화, 해석 가능한 머신러닝, 제약 인식 최적화를 통합한 통일 프레임워크로 기존 연구의 개별 파라미터 분석 한계를 극복함</div>
                 </div>
             </div>
             <div class="section">
                 <div class="section-title">Related Works: 관련 연구</div>
                 <div class="section-content">
-                    <div class="bullet">Sun et al.은 시위 방향 굽힘이 양력을 크게 향상시키고 스팬 방향 비틀림이 에너지 소비 감소에 핵심임을 발견함</div>
-                    <div class="bullet">Park et al.은 스팬 방향 비틀림과 시위 방향 굽힘의 복합 효과가 비선형 받음각 분포(날개 뿌리 44°, 날개 끝 25°)로 효율 5.9% 개선함을 확인함</div>
-                    <div class="bullet">Addo-Akoto et al.은 슬랙 앵글 약 2.5°, 종횡비 AR=3~5 중간 범위에서 유연·강성 날개 모두 양력 성능이 크게 향상됨을 발견함</div>
-                    <div class="bullet">Nguyen et al.은 큰 종횡비(AR=2.75)와 적절한 날개 뿌리 오프셋(0.15)이 더 강한 양력 출력을 생성함을 다양한 플래핑윙 구성 테스트로 제시함</div>
-                    <div class="bullet">Chen et al.은 날개 형상과 앞전 스파 크기가 비행 성능에 상당한 영향을 미치며, 더 짧은 날개폭·얇은 스파 설계로 양력 37% 향상을 달성함</div>
-                    <div class="bullet">Shahzad et al.과 Broadley et al.은 외측 날개 면적 증가가 양력을 향상시키지만 전력 소비도 비례 증가하여 트레이드오프 균형이 필요함을 지적함</div>
-                    <div class="bullet">데이터 기반 접근법은 유연 날개 설계, 자세 제어 최적화, 저전력 구성 개발에서 효과적임이 입증됨 (Tang et al.)</div>
+                    <div class="bullet">Sun &amp; Lan (2004, JEB): 드래곤플라이 호버링의 공력력과 전력 수요 계산 연구 - 비정상 공력 메커니즘의 기초 이해 제공</div>
+                    <div class="bullet">Park et al. (2017, Bioinspiration &amp; Biomimetics): 스팬 비틀림과 시위 굴힘의 복합 효과로 비선형 받음각 분포(루트 44°, 팁 25°)가 공력 효율 5.9% 향상</div>
+                    <div class="bullet">Addo-Akoto et al. (2022, Physics of Fluids): 슬랙 각도 ≈2.5°, AR=3-5 범위에서 유연·강성 날개 모두 양력이 크게 향상; 슬랙 각도가 이를 초과하면 전연 와류(LEV) 약화</div>
+                    <div class="bullet">Chen et al. (2016, IROS): 날개 기하학적 형상과 전연 스파 크기가 비행 성능에 큰 영향; 짧은 날개폭과 업은 스파 설계로 양력 37% 향상</div>
+                    <div class="bullet">Corban et al. (2023, JFM): 능동 심층 학습을 활용한 최적 플래핑 날개 운동학 발견 - 데이터 기반 공력 최적화 가능성 제시</div>
+                    <div class="bullet">Renganathan et al. (2021, AST): 심층 신경망과 가우시안 프로세스 결합으로 공력 설계 최적화의 데이터 효율성 향상</div>
+                    <div class="bullet">Cai et al. (2021, JFM): CFD 데이터 기반 공력 모델로 다양한 비행 속도에서의 플래핑 공력을 빠르고 정밀하게 예측</div>
                 </div>
             </div>
             <div class="section">
                 <div class="section-title">Method: 새로운 접근 방법</div>
                 <div class="section-content">
-                    <div class="bullet">공간 5-바 링크 기구 <span class="eng">(spatial five-bar linkage mechanism)</span>를 설계하여 스트로크 진폭 제한 문제를 해결하고 날개 움직임을 약 2배 증폭시킴</div>
-                    <div class="bullet">PC31 나일론 직물을 날개 막 재료로 선정(20 Hz 기준 평균 양력 57.4 gf, 우수한 내구성); 1 mm CFRP 앞전·0.5 mm CFRP 지지 정맥 구조 채택</div>
-                    <div class="bullet">8가지 날개 맥 배치(Types A~H)를 제작하고 15~28 Hz 단변수 제어 실험으로 강성 분포가 양력·효율에 미치는 비선형 효과를 분석함</div>
-                    <div class="bullet">슬랙 앵글(β=7°~20°), 종횡비(AR=3.0~5.5), 날개 면적(S=3500~6000 mm²) 각각의 단변수 실험으로 다차원 파라메트릭 데이터셋을 구축함</div>
-                    <div class="bullet">XGBoost, Random Forest, SVR, GBDT, Deep Forest의 5가지 머신러닝 회귀 모델을 5-폴드 교차 검증으로 비교하여 XGBoost를 최적 서로게이트 모델로 선정함</div>
-                    <div class="bullet">SHAP <span class="eng">(Shapley Additive Explanations)</span> 분석으로 날개 면적(S)과 주파수(f)가 가장 중요한 변수임을 규명하고 파라미터 상호 작용 해석을 제공함</div>
-                    <div class="bullet">총 158,704가지 후보 조합을 그리드 서치로 평가하고 구조적 제약(날개폭 ≤95 mm, L≥60 gf, P≤20 W)을 적용하여 최적 설계를 도출함</div>
+                    <div class="bullet">단일 모터 구동 4날개 FWMAV 실험 플랫폼 구축: 감속 기어박스(전달비 10.5:1) + 링크 메커니즘 → 왕복 날개 운동 변환</div>
+                    <div class="bullet"><span class="term">공간 5와 링크 메커니즘</span>: 2단계 링크 시스템으로 스트로크 증폭과 방향 교정을 동시 달성, 기존 크랭크-로커 메커니즘의 스트로크 진폭 제한 극복</div>
+                    <div class="bullet">단일 변수 제어 실험: 날개 강성·슬랙 각도·종횟비·날개 면적 각각 6종류 날개 유형을 15-28Hz 범위에서 체계적으로 테스트</div>
+                    <div class="bullet"><span class="term">XGBoost 회귀 모델</span>: 5격 교차 검증으로 학습, RF/SVR/GBDT/Deep Forest 대비 최고 성능 달성; 양력(L)과 전력 소비(P) 동시 예측</div>
+                    <div class="bullet"><span class="term">SHAP 분석</span> (Shapley Additive Explanations): 복잡한 모델에 해석 가능성 부여, 각 구조 파라미터의 공력 기여도를 투명하게 정량화</div>
+                    <div class="bullet">격자 탐색 최적화: β=7-20°, AR=2.5-5.5, S=3500-6000mm², f=15-28Hz 범위의 158,704개 후보 구성을 서로게이트 모델로 평가</div>
+                    <div class="bullet">종합 성능 점수 함수(J): 양력 향상과 전력 소비 감소를 동시에 목표로 하는 다목적 최적화 기준 적용, 구조 제약 조건 준수</div>
                 </div>
             </div>
             <div class="section">
                 <div class="section-title">Experiment: 실험 방법과 결과</div>
                 <div class="section-content">
-                    <div class="bullet">6축 힘/토크 센서(DECENT Y45, 1000 Hz 샘플링, ±0.1% 정확도)와 포토일렉트릭 센서(5000 Hz)를 이용한 고정밀 양력·전력 측정 시스템을 구축함</div>
-                    <div class="bullet">Type B 날개는 28 Hz에서 L=74.3 gf, CL=1.83, η=2.61 gf/W, Type G는 15~18 Hz 저주파에서 η=4.38 gf/W로 최고 효율을 달성함</div>
-                    <div class="bullet">슬랙 앵글 실험: 고주파(f≥20 Hz)에서 β=9°~11°이 최적, 저주파(f≤20 Hz)에서는 큰 슬랙 앵글(β=17°~20°)이 유리한 주파수 의존적 특성을 확인함</div>
-                    <div class="bullet">종횡비 실험: AR=4.0에서 28 Hz 기준 최대 양력 54.2 gf, CL=3.10을 달성하였으며 AR=4.0~4.5가 최적 설계 범위(자연계 벌새 날개와 일치)</div>
-                    <div class="bullet">날개 면적 실험: AR=3.0 기준 3750→4537 mm²로 면적 증가 시 양력이 44.5→62.9 gf(41.3% 향상)로 증가하나, 무차원 지수(CL, η)는 비선형 거동을 보임</div>
-                    <div class="bullet">최적 파라미터(β=8°, AR=3.2, S=5400 mm², f=20 Hz): 예측값 60.09 gf vs 실험값 60.8 gf, 오차 1.16%; 효율 3.2 gf/W, J=0.98 달성</div>
-                    <div class="bullet">프로토타입 비행 시험: 12 V DC로 최대 84.4 gf 양력, 배터리 탑재 시 60 gf 정상 양력, 추력 대 중량비 1.39, 호버링 약 5.8분 달성</div>
+                    <div class="bullet">날개 강성 실험: 적절한 강성 분포가 유리한 공탄성-공력 커플링을 촉진, LEV 부착 안정성 향상으로 양력과 효율 동시 개선 확인</div>
+                    <div class="bullet">슬랙 각도(β) 실험: β=9°-11°가 대부분 주파수에서 균형적 성능 제공; 고주파(≥24Hz)는 소형 β(7-9°), 저주파(≤19Hz)는 대형 β(17-20°)가 유리</div>
+                    <div class="bullet">종횟비(AR) 실험: AR=4.0에서 최대 양력(54.2gf)과 최대 양력계수(CL=3.10) at 28Hz; AR&gt;5.0에서 팁 유도 항력과 구조 관성으로 양력·효율 감소</div>
+                    <div class="bullet">날개 면적(S) 실험: AR=3.0 조건에서 3750→4537mm² 변화 시 양력 41.3% 증가; 그러나 무차원 양력계수·효율은 비선형 거동 표시</div>
+                    <div class="bullet">XGBoost 모델 성능: 양력 R²=0.980, 전력 소비 R²=0.989 - 5가지 모델 중 최고 정확도 달성</div>
+                    <div class="bullet">최적 파라미터(β=8°, AR=3.2, S=5400mm², f=20Hz): 예측 60.09gf vs 실험 60.8gf (오차 1.16%), 효율 3.2gf/W</div>
+                    <div class="bullet">시제품 비행 시험: 12V DC 전원에서 최대 순양력 84.4gf, 배터리 구동 시 추력-중량비 1.39, 호버링 지속시간 5.8분 달성</div>
                 </div>
             </div>
             <div class="section">
                 <div class="section-title">Discussion: 결과의 해석</div>
                 <div class="section-content">
-                    <div class="bullet">날개 강성 최적화는 '구조적 지지'와 '유연한 조정' 간 동적 균형이 핵심이며, 과도한 강성은 LEV(앞전 와류) 탈락과 효율 손실로 이어짐</div>
-                    <div class="bullet">슬랙 앵글은 단독 최적화가 아닌 작동 주파수와 연계하여 조율해야 하며, β=9°~11°가 대부분의 주파수에서 양립 가능한 최적 균형을 제공함</div>
-                    <div class="bullet">SHAP 분석 결과 날개 면적과 주파수가 지배적 변수이나, 종횡비와 슬랙 앵글도 공력 형상과 흐름장 구조에 간접적 조절 역할을 수행함</div>
-                    <div class="bullet">XGBoost 서로게이트 모델은 단일 변수 실험 최적 날개보다 높은 효율의 최적 해를 성공적으로 식별하여 데이터 기반 설계의 유효성을 입증함</div>
-                    <div class="bullet">정적 측정 환경의 실험 한계: 실제 비행 중 동적 공력 거동과의 차이가 예상되며, 순수 공력 전력 성분의 분리가 이루어지지 않았음</div>
-                    <div class="bullet">단변수 제어 실험 기반으로 파라미터 간 완전한 교호 작용 효과는 충분히 포착되지 않을 수 있어 다변수 실험 설계 보완이 필요함</div>
+                    <div class="bullet">날개 강성과 슬랙 각도는 주파수 의존적 공력 영향을 가지며, 적절한 튜닝이 공탄성-공력 커플링을 활성화하여 양력과 효율을 동시에 개선함</div>
+                    <div class="bullet">종횟비는 절대 양력 향상보다 양력 분포 품질과 에너지 변환 효율의 협조적 조정에서 더 중요한 역할 - 자연 벌새 날개의 전형적 종횟비와 일치하여 자연 진화의 수렴 경향을 입증</div>
+                    <div class="bullet">데이터 기반 서로게이트 모델은 고차원 설계 공간을 효율적으로 탐색하며, 전통적 CFD 기반 예측의 높은 계산 비용을 극복; 서로게이트 최적화 해가 최선 실험 구성을 능가함</div>
+                    <div class="bullet">SHAP 분석이 블랙박스 머신러닝 모델에 해석 가능성을 부여하여 슬랙 각도 감소와 날개 면적 증가의 시너지 효과(에너지 소비 감소 + 비정상 공력 효율 향상)를 정량화</div>
+                    <div class="bullet">서로게이트 모델의 신뢰도 제한: 실험적으로 실현 가능한 샘플 학습으로 희소 샘플링 영역(높은 주파수, 대형 날개 면적)에서의 외삽 신뢰도가 감소할 수 있음</div>
+                    <div class="bullet">비행 검증의 한계: 능동 자세 제어 없이 수직 상승에 국한되어 자유 비행 호버링에서의 안정성과 기동성을 완전히 평가하지 못함</div>
                 </div>
             </div>
             <div class="section">
                 <div class="section-title">Conclusion: 최종 요약</div>
                 <div class="section-content">
-                    <div class="bullet">실험적 특성화, XGBoost+SHAP 해석 가능 모델링, 제약 인식 최적화를 통합한 FWMAV 설계 통합 프레임워크를 최초로 제시함</div>
-                    <div class="bullet">XGBoost 서로게이트 모델이 양력 R²=0.980, 전력 R²=0.989의 고정밀 예측 성능과 일반화 능력을 5-폴드 교차 검증으로 입증함</div>
-                    <div class="bullet">최적 설계(β=8°, AR=3.2, S=5400 mm², f=20 Hz)는 60.8 gf 양력과 3.2 gf/W 효율을 실현하여 기존 단변수 최적 설계를 능가함</div>
-                    <div class="bullet">실제 프로토타입에서 추력 대 중량비 1.39를 달성하여 서로게이트 기반 최적화 프레임워크의 엔지니어링 타당성이 검증됨</div>
-                    <div class="bullet">향후 연구 방향: CFD 시뮬레이션과 실험 데이터 통합, 능동 자세 제어 시스템 결합, 자율 비행 성능 장기 검증이 필요함</div>
-                    <div class="bullet">본 연구는 호버링 FWMAV의 지능형 설계와 복잡 환경에서의 자율 비행 능력 향상에 중요한 이론적·기술적 기초를 제공함</div>
+                    <div class="bullet">실험적 특성화, 해석 가능한 머신러닝 모델링, 제약 인식 최적화를 통합한 통일된 FWMAV 설계 방법론 성공적으로 제시</div>
+                    <div class="bullet">XGBoost 서로게이트 모델이 양력 R²=0.980, 전력 소비 R²=0.989로 높은 예측 정확도를 달성하여 설계 공간 탐색을 효율적으로 가속화</div>
+                    <div class="bullet">최적 구성(β=8°, AR=3.2, S=5400mm², f=20Hz): 60.8gf 양력과 3.2gf/W 효율 달성, 시제품 추력-중량비 1.39 기록</div>
+                    <div class="bullet">향후 연구 1: CFD, FSI, 실험의 다중 소스 데이터셋 통합으로 설계 공간 범위 확장 및 물리 정보 기반 서로게이트 모델 개발</div>
+                    <div class="bullet">향후 연구 2: 불확실성 정량화와 능동 학습을 통한 샘플링 효율 향상</div>
+                    <div class="bullet">향후 연구 3: 제어 지향 목적 함수와 페루프 비행 실험 통합으로 자율 호버링 FWMAV 시스템을 위한 구조-공력-제어 공동 설계 프레임워크 구축</div>
                 </div>
             </div>
         </div>
