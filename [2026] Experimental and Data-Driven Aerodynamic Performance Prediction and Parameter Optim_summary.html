@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="paper-title"   content="Experimental and Data-Driven Aerodynamic Performance Prediction and Parameter Optimization of Hovering Flapping Wing Micro Aerial Vehicles">
+    <meta name="paper-year"    content="2026">
+    <meta name="paper-author"  content="XiangYing GUO, Peng GAO, YangBo LI, XiaoDong YANG">
+    <meta name="paper-journal" content="Aerospace Science and Technology">
+    <meta name="paper-tags"    content="flapping wing, optimization, data-driven, FSI">
+    <meta name="paper-doi"     content="https://doi.org/10.1016/j.ast.2026.112147">
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Noto Sans KR', Arial, sans-serif; margin: 0; padding: 0;
+               background: #f5f5f5; color: #333; display: flex; justify-content: center;
+               align-items: center; min-height: 100vh; }
+        .slide { width: 1680px; min-height: 720px; background: white;
+                 box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex;
+                 flex-direction: column; margin: 20px 0; }
+        .header { background: #005b96; color: white; padding: 20px 30px;
+                  display: flex; flex-direction: column; box-sizing: border-box; }
+        .title { font-size: 26px; font-weight: bold; margin-bottom: 8px; }
+        .authors { font-size: 15px; margin-bottom: 4px; }
+        .journal { font-size: 14px; opacity: 0.9; }
+        .summary-container { background: #f0f5fa; padding: 12px 30px;
+                             border-bottom: 1px solid #e1e5e8; }
+        .summary-title { font-size: 16px; font-weight: bold; margin-bottom: 5px; color: #005b96; }
+        .summary { font-size: 14px; line-height: 1.5; }
+        .content { display: grid; grid-template-columns: repeat(3, 1fr);
+                   gap: 15px; padding: 15px; flex: 1; }
+        .section { background: white; border: 1px solid #e0e0e0; border-radius: 6px;
+                   padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                   max-height: 320px; overflow-y: auto; }
+        .section-title { color: #005b96; font-size: 16px; font-weight: bold;
+                         margin-bottom: 10px; padding-bottom: 5px;
+                         border-bottom: 2px solid #005b96; }
+        .section-content { font-size: 13px; line-height: 1.6; }
+        .term { font-weight: bold; color: #005b96; }
+        .bullet { margin-left: 8px; text-indent: -8px; padding-left: 8px; margin-bottom: 6px; }
+        .bullet:before { content: "• "; color: #005b96; }
+        .eng { color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="slide">
+        <div class="header">
+            <div class="title">Experimental and Data-Driven Aerodynamic Performance Prediction and Parameter Optimization of Hovering Flapping Wing Micro Aerial Vehicles</div>
+            <div class="authors">XiangYing GUO, Peng GAO, YangBo LI, XiaoDong YANG | Beijing University of Technology; Shenyang Aerospace University</div>
+            <div class="journal">Aerospace Science and Technology, 2026 | DOI: https://doi.org/10.1016/j.ast.2026.112147</div>
+        </div>
+        <div class="summary-container">
+            <div class="summary-title">논문 요약</div>
+            <div class="summary">본 연구는 호버링 플래핑 윙 마이크로 에어리얼 비히클(FWMAV)의 공력 성능 예측과 파라미터 최적화를 위한 통합 설계 방법론을 제시한다. 쿼드윙 실험 플랫폼을 구축하고 날개 강성·슬랙 앵글·종횡비·날개 면적이 양력과 에너지 효율에 미치는 비선형 결합 효과를 체계적으로 분석하였다. XGBoost 서로게이트 모델은 양력 R²=0.980, 전력 R²=0.989의 높은 예측 정확도를 달성하였으며, SHAP 분석을 통해 날개 면적과 주파수가 핵심 성능 변수임을 규명하였다. 그리드 서치 최적화로 양력 60.8 gf, 효율 3.2 gf/W의 최적 설계를 도출하고 추력 대 중량비 1.39의 프로토타입으로 엔지니어링 가능성을 검증하였다.</div>
+        </div>
+        <div class="content">
+            <div class="section">
+                <div class="section-title">Introduction: 연구 동기</div>
+                <div class="section-content">
+                    <div class="bullet">자연계 곤충·조류의 날갯짓 기반 호버링·선회·급기동 능력이 FWMAV 설계에 핵심 생체모방 통찰을 제공함</div>
+                    <div class="bullet">FWMAV는 수직 이착륙, 저소음, 뛰어난 기동성으로 저레이놀즈수 비행 플랫폼의 핵심 연구 방향으로 부상함</div>
+                    <div class="bullet">Delfly Nimble, RoboBee, Explobird 등 기존 프로토타입은 가능성을 입증했으나 추력비·지속시간이 여전히 제한적임</div>
+                    <div class="bullet">최고 성능 Nano Hummingbird도 최대 체공 11분에 불과하며, 마이크로 구동 전력 밀도와 복잡한 기계 전달이 근본 한계임</div>
+                    <div class="bullet">날개 강성·형상·질량 분포의 비선형 결합 효과는 불충분하게 연구되어 실용적 다목적 최적화가 어려운 상황임</div>
+                    <div class="bullet">기존 해석적 모델링·경험적 튜닝 기반 최적화는 비정상 공기역학의 다중 스케일 결합 탐색에 비효율적임</div>
+                    <div class="bullet">데이터 기반 서로게이트 모델 <span class="eng">(surrogate model)</span>은 제한된 실험 데이터로 복잡한 공력 응답을 빠르게 예측하고 다목적 최적화를 가능하게 함</div>
+                    <div class="bullet">본 연구는 실험적 특성화, 해석 가능한 머신러닝 모델링, 제약 인식 최적화를 통합한 단일 프레임워크를 제안함</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Related Works: 관련 연구</div>
+                <div class="section-content">
+                    <div class="bullet">Sun et al.은 시위 방향 굽힘이 양력을 크게 향상시키고 스팬 방향 비틀림이 에너지 소비 감소에 핵심임을 발견함</div>
+                    <div class="bullet">Park et al.은 스팬 방향 비틀림과 시위 방향 굽힘의 복합 효과가 비선형 받음각 분포(날개 뿌리 44°, 날개 끝 25°)로 효율 5.9% 개선함을 확인함</div>
+                    <div class="bullet">Addo-Akoto et al.은 슬랙 앵글 약 2.5°, 종횡비 AR=3~5 중간 범위에서 유연·강성 날개 모두 양력 성능이 크게 향상됨을 발견함</div>
+                    <div class="bullet">Nguyen et al.은 큰 종횡비(AR=2.75)와 적절한 날개 뿌리 오프셋(0.15)이 더 강한 양력 출력을 생성함을 다양한 플래핑윙 구성 테스트로 제시함</div>
+                    <div class="bullet">Chen et al.은 날개 형상과 앞전 스파 크기가 비행 성능에 상당한 영향을 미치며, 더 짧은 날개폭·얇은 스파 설계로 양력 37% 향상을 달성함</div>
+                    <div class="bullet">Shahzad et al.과 Broadley et al.은 외측 날개 면적 증가가 양력을 향상시키지만 전력 소비도 비례 증가하여 트레이드오프 균형이 필요함을 지적함</div>
+                    <div class="bullet">데이터 기반 접근법은 유연 날개 설계, 자세 제어 최적화, 저전력 구성 개발에서 효과적임이 입증됨 (Tang et al.)</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Method: 새로운 접근 방법</div>
+                <div class="section-content">
+                    <div class="bullet">공간 5-바 링크 기구 <span class="eng">(spatial five-bar linkage mechanism)</span>를 설계하여 스트로크 진폭 제한 문제를 해결하고 날개 움직임을 약 2배 증폭시킴</div>
+                    <div class="bullet">PC31 나일론 직물을 날개 막 재료로 선정(20 Hz 기준 평균 양력 57.4 gf, 우수한 내구성); 1 mm CFRP 앞전·0.5 mm CFRP 지지 정맥 구조 채택</div>
+                    <div class="bullet">8가지 날개 맥 배치(Types A~H)를 제작하고 15~28 Hz 단변수 제어 실험으로 강성 분포가 양력·효율에 미치는 비선형 효과를 분석함</div>
+                    <div class="bullet">슬랙 앵글(β=7°~20°), 종횡비(AR=3.0~5.5), 날개 면적(S=3500~6000 mm²) 각각의 단변수 실험으로 다차원 파라메트릭 데이터셋을 구축함</div>
+                    <div class="bullet">XGBoost, Random Forest, SVR, GBDT, Deep Forest의 5가지 머신러닝 회귀 모델을 5-폴드 교차 검증으로 비교하여 XGBoost를 최적 서로게이트 모델로 선정함</div>
+                    <div class="bullet">SHAP <span class="eng">(Shapley Additive Explanations)</span> 분석으로 날개 면적(S)과 주파수(f)가 가장 중요한 변수임을 규명하고 파라미터 상호 작용 해석을 제공함</div>
+                    <div class="bullet">총 158,704가지 후보 조합을 그리드 서치로 평가하고 구조적 제약(날개폭 ≤95 mm, L≥60 gf, P≤20 W)을 적용하여 최적 설계를 도출함</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Experiment: 실험 방법과 결과</div>
+                <div class="section-content">
+                    <div class="bullet">6축 힘/토크 센서(DECENT Y45, 1000 Hz 샘플링, ±0.1% 정확도)와 포토일렉트릭 센서(5000 Hz)를 이용한 고정밀 양력·전력 측정 시스템을 구축함</div>
+                    <div class="bullet">Type B 날개는 28 Hz에서 L=74.3 gf, CL=1.83, η=2.61 gf/W, Type G는 15~18 Hz 저주파에서 η=4.38 gf/W로 최고 효율을 달성함</div>
+                    <div class="bullet">슬랙 앵글 실험: 고주파(f≥20 Hz)에서 β=9°~11°이 최적, 저주파(f≤20 Hz)에서는 큰 슬랙 앵글(β=17°~20°)이 유리한 주파수 의존적 특성을 확인함</div>
+                    <div class="bullet">종횡비 실험: AR=4.0에서 28 Hz 기준 최대 양력 54.2 gf, CL=3.10을 달성하였으며 AR=4.0~4.5가 최적 설계 범위(자연계 벌새 날개와 일치)</div>
+                    <div class="bullet">날개 면적 실험: AR=3.0 기준 3750→4537 mm²로 면적 증가 시 양력이 44.5→62.9 gf(41.3% 향상)로 증가하나, 무차원 지수(CL, η)는 비선형 거동을 보임</div>
+                    <div class="bullet">최적 파라미터(β=8°, AR=3.2, S=5400 mm², f=20 Hz): 예측값 60.09 gf vs 실험값 60.8 gf, 오차 1.16%; 효율 3.2 gf/W, J=0.98 달성</div>
+                    <div class="bullet">프로토타입 비행 시험: 12 V DC로 최대 84.4 gf 양력, 배터리 탑재 시 60 gf 정상 양력, 추력 대 중량비 1.39, 호버링 약 5.8분 달성</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Discussion: 결과의 해석</div>
+                <div class="section-content">
+                    <div class="bullet">날개 강성 최적화는 '구조적 지지'와 '유연한 조정' 간 동적 균형이 핵심이며, 과도한 강성은 LEV(앞전 와류) 탈락과 효율 손실로 이어짐</div>
+                    <div class="bullet">슬랙 앵글은 단독 최적화가 아닌 작동 주파수와 연계하여 조율해야 하며, β=9°~11°가 대부분의 주파수에서 양립 가능한 최적 균형을 제공함</div>
+                    <div class="bullet">SHAP 분석 결과 날개 면적과 주파수가 지배적 변수이나, 종횡비와 슬랙 앵글도 공력 형상과 흐름장 구조에 간접적 조절 역할을 수행함</div>
+                    <div class="bullet">XGBoost 서로게이트 모델은 단일 변수 실험 최적 날개보다 높은 효율의 최적 해를 성공적으로 식별하여 데이터 기반 설계의 유효성을 입증함</div>
+                    <div class="bullet">정적 측정 환경의 실험 한계: 실제 비행 중 동적 공력 거동과의 차이가 예상되며, 순수 공력 전력 성분의 분리가 이루어지지 않았음</div>
+                    <div class="bullet">단변수 제어 실험 기반으로 파라미터 간 완전한 교호 작용 효과는 충분히 포착되지 않을 수 있어 다변수 실험 설계 보완이 필요함</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Conclusion: 최종 요약</div>
+                <div class="section-content">
+                    <div class="bullet">실험적 특성화, XGBoost+SHAP 해석 가능 모델링, 제약 인식 최적화를 통합한 FWMAV 설계 통합 프레임워크를 최초로 제시함</div>
+                    <div class="bullet">XGBoost 서로게이트 모델이 양력 R²=0.980, 전력 R²=0.989의 고정밀 예측 성능과 일반화 능력을 5-폴드 교차 검증으로 입증함</div>
+                    <div class="bullet">최적 설계(β=8°, AR=3.2, S=5400 mm², f=20 Hz)는 60.8 gf 양력과 3.2 gf/W 효율을 실현하여 기존 단변수 최적 설계를 능가함</div>
+                    <div class="bullet">실제 프로토타입에서 추력 대 중량비 1.39를 달성하여 서로게이트 기반 최적화 프레임워크의 엔지니어링 타당성이 검증됨</div>
+                    <div class="bullet">향후 연구 방향: CFD 시뮬레이션과 실험 데이터 통합, 능동 자세 제어 시스템 결합, 자율 비행 성능 장기 검증이 필요함</div>
+                    <div class="bullet">본 연구는 호버링 FWMAV의 지능형 설계와 복잡 환경에서의 자율 비행 능력 향상에 중요한 이론적·기술적 기초를 제공함</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
