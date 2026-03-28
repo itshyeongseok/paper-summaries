@@ -6,8 +6,8 @@
     <meta name="paper-year"    content="2026">
     <meta name="paper-author"  content="Zheng Zhong, Zeyang Yu, Lin Dong, Qiang Fu, Xiaoyang Wu, Wei He">
     <meta name="paper-journal" content="IEEE Transactions on Instrumentation and Measurement">
-    <meta name="paper-tags"    content="flapping wing, SLAM, control, robotics">
-    <meta name="paper-doi"     content="10.1109/TIM.2026.3676200">
+    <meta name="paper-tags"    content="flapping wing, SLAM, robotics, control">
+    <meta name="paper-doi"     content="https://doi.org/10.1109/TIM.2026.3676200">
     <style>
         html { scroll-behavior: smooth; }
         body { font-family: 'Noto Sans KR', Arial, sans-serif; margin: 0; padding: 0;
@@ -36,7 +36,7 @@
         .section-content { font-size: 13px; line-height: 1.6; }
         .term { font-weight: bold; color: #005b96; }
         .bullet { margin-left: 8px; text-indent: -8px; padding-left: 8px; margin-bottom: 6px; }
-        .bullet:before { content: "• "; color: #005b96; }
+        .bullet:before { content: "\u2022 "; color: #005b96; }
         .eng { color: #666; font-style: italic; }
     </style>
 </head>
@@ -44,83 +44,82 @@
     <div class="slide">
         <div class="header">
             <div class="title">FWFR-SLAM: A Robust Monocular SLAM System for Flapping-Wing Flying Robots</div>
-            <div class="authors">Zheng Zhong, Zeyang Yu, Lin Dong, Qiang Fu, Xiaoyang Wu, Wei He | University of Science and Technology Beijing; Beijing Information S&T University</div>
+            <div class="authors">Zheng Zhong, Zeyang Yu, Lin Dong, Qiang Fu, Xiaoyang Wu, Wei He</div>
             <div class="journal">IEEE Transactions on Instrumentation and Measurement, 2026 | DOI: 10.1109/TIM.2026.3676200</div>
         </div>
         <div class="summary-container">
             <div class="summary-title">논문 요약</div>
-            <div class="summary">본 논문은 플래핑 윙 비행 로봇(FWFR)을 위한 강건한 단안 시각적 SLAM 시스템인 FWFR-SLAM을 제안한다. S-HFNET 알고리즘은 희소 광학 흐름 기반 영상 안정화와 HFNet 계층적 특징 매칭을 결합하여 날갯짓 진동에 의한 블러와 오매칭을 9.5% 이상 개선한다. 단안 초기화 과정에 불확실성 기반 맵 포인트 필터링을 도입하여 초기화 오류를 20% 감소시키고, 영상 정보 엔트로피와 모션 불안정 에너지 융합 기반 키프레임 선택 전략으로 키프레임 수를 14% 줄이고 측위 정확도를 23% 이상 향상하였다. GRIFFIN 공개 데이터셋과 자체 수집 FW 데이터셋에서 ORB-SLAM3-S 대비 ATE를 41% 이상 개선하였다.</div>
+            <div class="summary">본 논문은 플래핑 날개 비행 로봇(FWFR)을 위한 강인한 단안 시각 SLAM 시스템인 FWFR-SLAM을 제안한다. 날개 진동으로 인한 이미지 블러, 불량 초기화 맵 포인트, 중복 키프레임의 세 가지 핵심 도전을 극복하기 위해 S-HFNET 계층적 특징 매칭, 불확실성 기반 단안 초기화, 엔트로피 기반 키프레임 선택이라는 세 가지 혁신을 ORB-SLAM3 프레임워크에 통합하였다. GRIFFIN 공개 데이터셋에서 ORB-SLAM3-S 대비 46%, 자체 수집 FW 데이터셋에서 36%, 전체적으로 41% 이상의 위치 추정 정확도 향상을 달성하였으며, Jetson Orin Nano에서 약 12.7 FPS의 실시간 처리 능력을 유지하였다.</div>
         </div>
         <div class="content">
             <div class="section">
                 <div class="section-title">Introduction: 연구 동기</div>
                 <div class="section-content">
-                    <div class="bullet">플래핑 윙 비행 로봇(FWFR)은 조류·공충 날갯짓 모션을 모방하여 높은 에너지 효율과 다엄한 기동성을 구현하며 강한 고상능능 용용력을 진닙 보여준다</div>
-                    <div class="bullet">FWFR의 자율 항법은 센서 데이터 기반 상태 추정, 부드럽고 충돌 회피 비행 경로 평단, 목표 지점 안전 도달에 핵심적임</div>
-                    <div class="bullet">SLAM은 로봇이 센서 데이터를 이용해 미지 환경에서 지도 구축과 자신 위치 추정을 동시에 수행하는 핵심 자율 항법 기술이다</div>
-                    <div class="bullet">단안 카메라는 경량·저비용이라는 장점이 있으나, 낮은 초기화 정확도와 키프레임 중복성 문제를 내포함</div>
-                    <div class="bullet">날갯짓으로 인한 영상 모션 블러, 단안 초기화 시 살투 노이즈로 인한 저품질 맵 포인트 생성, 비균일 FWFR 웄동으로 인한 중복 키프레임이 주요 도전 과제임</div>
-                    <div class="bullet">ORB-SLAM3은 워레-사다리 점 추적 바닥으로 최주류 시각 SLAM이나, FWFR의 개질별 진동 특성에 맞는 특수화 없이는 복잡한 환경에서 성능이 불충분함</div>
-                    <div class="bullet">FFT 주파수 도메인 분석 실험에서 날갯짓 진동이 ORB-SLAM3 추적 실패의 주요 원인임이 통제된 실험으로 확인됨</div>
-                    <div class="bullet">본 논문은 S-HFNET, 불확실성 기반 초기화, 엔트로피 기반 키프레임 선택의 3가지 핵심 혁신을 ORB-SLAM3 프레임워크에 통합한 FWFR-SLAM을 제안함</div>
+                    <div class="bullet">플래핑 날개 비행 로봇(FWFR)은 생물학적 비행 메커니즘을 모방하여 높은 기동성, 비행 효율, 저소음, 스텔스 특성을 갖지만 자율 비행을 위한 SLAM 기술이 미성숙한 상태임</div>
+                    <div class="bullet">단안 카메라는 경량 저비용으로 FWFR에 최적화된 센서이나, 깊이 측정 불가, 낙은 초기화 정확도, 키프레임 중복 문제가 존재함</div>
+                    <div class="bullet">도전 1: 날개 플래핑으로 인한 이미지 모션 블러가 특징점 추적의 연속성을 방해하며, 강한 진동은 초기화 과정에서 불량 맵 포인트를 생성함</div>
+                    <div class="bullet">도전 2: FWFR의 비균일 운동으로 인한 시점 급변이 중복 키프레임을 유발하여 시스템 상태 추정의 정확도를 저하시킴</div>
+                    <div class="bullet">기존 범용 SLAM 시스템(ORB-SLAM3, DSO, DROID)은 FWFR 플랫폼의 특수한 운동 특성에 최적화되지 않아 성능이 현저히 저하됨</div>
+                    <div class="bullet">주파수 영역 분석(FFT)으로 날개 플래핑에 의한 주기적 진동이 SLAM 실패의 주요 원인임을 실험적으로 확인함</div>
+                    <div class="bullet">본 연구는 ORB-SLAM3 프레임워크를 기반으로 FWFR 특성에 맞는 S-HFNET, 불확실성 기반 초기화, 엔트로피 기반 키프레임 선택을 통합한 특화 SLAM 시스템을 개발함</div>
                 </div>
             </div>
             <div class="section">
                 <div class="section-title">Related Works: 관련 연구</div>
                 <div class="section-content">
-                    <div class="bullet">Tang et al.은 전역 움직임 복원 구조 기반 강건한 단안 SLAM 초기화 방법을 제안하여 다중 프레임 연소 최적화로 전통적 점진적 초기화의 한계를 극복함 (2021)</div>
-                    <div class="bullet">Yan et al., Yin et al., Zhang et al.은 관성 보조 시각-관성 SLAM에서 불확실성 평가 방법을 도입하여 초기 스케일·중력 방향 추정의 신뢰성을 향상시킴</div>
-                    <div class="bullet">Liu et al., Sun et al., Merrill et al.은 딥러닝 기반 초기 실도 맵 예측으로 전통적 2시점 삼각측량을 우회하는 학습 기반 접근법을 제안함</div>
-                    <div class="bullet">Piao et al., Song et al., Xue et al.은 특징 분포·IMU 움직임 추정·시차 변화 등 형상·움직임 기반 적응형 키프레임 선택으로 중복 계산을 줄이면서 추적 정확도를 유지함</div>
-                    <div class="bullet">Cheng et al.은 의미론적 마스킹·기하학적 일관성·장면 변화 감지를 결합한 3단계 필터링으로 추적 정확도를 42% 향상함</div>
-                    <div class="bullet">Hu et al.은 광학 흐름 일관성과 IMU 예측을 결합해 동적 특징을 구분하고 슬라이딩 윈도우 최적화로 키프레임 밀도를 적응적으로 조정함 (키프레임 35% 감소)</div>
-                    <div class="bullet">현존 초기화 방법은 FWFR 특유의 도전에 어려움을 보이며: 기하학 기반 방법은 플래핑 진동에 취약하고, 관성 융합은 고정 노이즈 모델 사용, 학습 기반는 일반화에 한계가 있음</div>
+                    <div class="bullet">ORB-SLAM3 (Campos et al., 2021, IEEE Trans. Robot.): 번들 조정 기반의 정확한 오픈소스 시각-관성 SLAM 라이브러리; 본 연구의 기반 프레임워크</div>
+                    <div class="bullet">VINS-Mono (Qin et al., 2018, IEEE Trans. Robot.): 강인하고 다용도인 단안 시각-관성 상태 추정기; 단안 SLAM의 핵심 비교 기준</div>
+                    <div class="bullet">HFNet (Sarlin et al., 2019, CVPR): 거칠음에서 세밀함으로의 계층적 위치 인식 - 전역 기술자와 지역 매칭을 결합한 강인한 특징 매칭 방법</div>
+                    <div class="bullet">SuperPoint+SuperGlue (Sarlin et al., 2020, CVPR): 그래프 신경망 기반 학습된 특징 매칭; FWFR-SHF와 정확도 비교에서 열세(FW-05: 81.6% vs 90.3%)</div>
+                    <div class="bullet">DSO (Engel et al., 2017, IEEE TPAMI): 직접 희소 주행거리 측정법; FWFR 환경에서 FWFR-SLAM 대비 약 81.9% ATE가 높음(성능 열세)</div>
+                    <div class="bullet">DROID-SLAM (Teed &amp; Deng, 2021, NeurIPS): 단안/스테레오/RGB-D를 위한 심층 시각 SLAM; FWFR 환경에서 FWFR-SLAM 대비 약 86.2% ATE가 높음</div>
+                    <div class="bullet">Vakhitov et al. (2021, CVPR): 포인트와 라인에서의 불확실성 인식 카메라 포즈 추정 - 본 연구의 불확실성 기반 맵 포인트 선택의 이론적 기반</div>
                 </div>
             </div>
             <div class="section">
                 <div class="section-title">Method: 새로운 접근 방법</div>
                 <div class="section-content">
-                    <div class="bullet">S-HFNET: 희소 광학 흐름과 L1 경로 최적화로 프레임을 안정화한 후 HFNet(MobileNetV2 백본))의 계층적 코스-투파인 매칭으로 특징 추출, 1024시 글로벌 설명자+256차원 로컨룰 설명자 동시 생성</div>
-                    <div class="bullet">단안 초기화 불확실성 평가: 삼각측량된 3D 포인트의 공분산 행렬 연산으로 비등방삱 노이즈(σv>σu))를 모델링하고, trace(원리탐)과 시차각 기준으로 불신뢰한 맵 포인트를 필터링함</div>
-                    <div class="bullet">백분위수 기반 필터링: 고정 최소값이 아닌 p번째 백분위수를 대람확률 임계값으로 사용하여 플래핑 노이즈에 대한 취약성을 감소함</div>
-                    <div class="bullet">PCA 기반 엔트로피: RGB 이미지를 PCA 첫 번째 주성분으로 투영하여 셜년 엔트로피 EI를 산정, 키프레임 선택에서 의미 있는 텍스쳐 맘앙함을 정확하게 포착함</div>
-                    <div class="bullet">모션 불안정 엔너지(EM): 각속도 분산(옥도 단위))로 고속 비행 시 영상 블러를 유발하는 프레임을 페널티 적용하여 엄격하게 안정적인 프레임만 키프레임으로 선택함</div>
-                    <div class="bullet">시자(disparity) 엔트로피(ED)와 베이스라인-시자 비율(BDR) 구속: 매칭 특징의 공간적 다양성을 보장하고 좌우 단기선 조건을 방지하여 정확한 삼각측량을 보장함</div>
-                    <div class="bullet">종합 점수 Efinal = Eadj · ED: 조절된 엔트로피와 시자 엔트로피를 곱하여 최종 키프레임 선택 점수를 산정하고, 지난 K 프레임 통계 기반 동적 임계값으로 화경돌가에 적응함</div>
+                    <div class="bullet"><span class="term">S-HFNET 알고리즘</span>: 희소 광학 흐름(Lucas-Kanade)과 L1 경로 방법을 결합한 영상 안정화 + HFNet의 전역 기술자로 전역 탐색 + 지역 매칭의 2단계 특징 매칭</div>
+                    <div class="bullet">S-HFNET의 전역-지역 계층적 매칭: 전역 기술자로 장면 콘텍스트를 앵커링한 후 지역 매칭으로 정밀화하여 FWFR의 대진폭 진동과 급회전 상황에서의 매칭 안정성 확보</div>
+                    <div class="bullet"><span class="term">불확실성 기반 단안 초기화</span>: 초기화된 맵 포인트에 대한 불확실성 평가를 도입하여 신뢰할 수 있는 맵 포인트만 선택, 전단부 오매칭 감소</div>
+                    <div class="bullet"><span class="term">엔트로피 기반 키프레임 선택</span>: 이미지 정보 엔트로피(E_I), 분산 엔트로피(E_D), 운동 불안정성 에너지(E_M) + 기저 비율(BDR)을 통합하여 대표적 프레임만 보존</div>
+                    <div class="bullet">FFT 주파수 분석: 픽셀 변위를 규칙적 플래핑 진동(주기적)과 불규칙적 자아 운동(비주기적)으로 분리하여 날개 진동이 SLAM 실패의 주원인임을 정량적으로 입증</div>
+                    <div class="bullet">주성분 분석(PCA) 기반 분산 엔트로피: 특징점 공간 분포의 균일성을 측정하여 편향된 특징 분포를 가진 키프레임을 필터링</div>
+                    <div class="bullet">전체 시스템: ORB-SLAM3 프레임워크 위에 세 가지 혁신을 계층적으로 통합하여 STAB → MATCHING → INIT → TRACK → LBA 파이프라인 구성</div>
                 </div>
             </div>
             <div class="section">
                 <div class="section-title">Experiment: 실험 방법과 결과</div>
                 <div class="section-content">
-                    <div class="bullet">GRIFFIN 공개 데이터셋(TA1, TA3, SA1, TB2)과 자체 수집 FW 데이터셋(FW-01~04, USTB-Dove 로봇)으로 실내·실외 다양한 환경에서 종합 평가를 수행함</div>
-                    <div class="bullet">S-HFNET 매칭 정확도: GRIFFIN 91.5%, FW 73.98%로 ORB-SLAM3-S보다 10.79% 향상; SuperPoint+SuperGlue보다 9.91% 향상</div>
-                    <div class="bullet">단안 초기화(FWFR-INITIAL): 전보 bundle adjustment 오류 20% 감소, ATE 18% 이상 향상, 평균 초기화 시간 215 ms로 ORB-SLAM3-S(219 ms)와 동등한 월라임 유지</div>
-                    <div class="bullet">키프레임 선택(FWFR-KEYFRAME): 키프레임 수 14% 감소(164→144개), LBA 시간 9% 감소, ATE 23% 이상 향상</div>
-                    <div class="bullet">FWFR-SLAM 종합: GRIFFIN엔서 ATE 46% 감소, FW데이터엔서 36% 감소; DSO보다 81.9%, DROID보다 86.2% 낮은 ATE 달성</div>
-                    <div class="bullet">절제 실험: BDR 제약이 없으면 ATE가 49.6% 암화되는 것이 가장 크고, EI 제거 시 25.6%, ED 제거 시 21.5% 실적 하락으로 전 구성 요소의 필수성이 확인됨</div>
-                    <div class="bullet">Jetson Orin Nano 플랫폼에서 FPS 12.7(FWFR-SLAM) vs 13.0(ORB-SLAM3-S)로 실시간 성능을 유지하면서, S-HFNET 처리 속도(11.2±2.4 ms)가 전통적 ORB과 동등하게 당시에 실행됨을 확인함</div>
+                    <div class="bullet">데이터셋: GRIFFIN 공개 데이터셋(flapping-wing 로봇 전용), 자체 수집 FW 데이터셋(FW-01~05), FWAF-VID(Indoor16/17 - 어둥/조명 변화)</div>
+                    <div class="bullet">위치 정확도(ATE): FWFR-SLAM이 ORB-SLAM3-S 대비 GRIFFIN 데이터셋에서 46%, FW 데이터셋에서 36%, 전체 41% 이상 향상</div>
+                    <div class="bullet">동적 환경(FW-05, 대진폭 회전): FWFR-SLAM ATE 24.6m vs ORB-SLAM3-S 40.2m - 38.8% 정확도 향상; DSO는 유효 추정값 생성 실패</div>
+                    <div class="bullet">조명 변화(Indoor17): FWFR-SLAM 13.5% 개선(ORB-SLAM3-S 대비), DSO 대비 16.4%, DROID 대비 14.1% 향상</div>
+                    <div class="bullet">특징 매칭 정확도(FW-05): FWFR-SHF 90.3% vs SuperPoint+SuperGlue 81.6%, ORB-SLAM3-S 75.7% - 대진폭 회전 환경에서 최고 성능</div>
+                    <div class="bullet">키프레임 선택: 키프레임 수 14% 감소, LBA 시간 9% 단축, 위치 정확도 23% 이상 향상; 엔트로피 E_I 제거 시 25.6% 정확도 감소(가장 중요한 컴포넌트)</div>
+                    <div class="bullet">실시간 처리: Jetson Orin Nano엔서 FWFR-SLAM 평균 12.7 FPS vs ORB-SLAM3-S 13.0 FPS; S-HFNET 처리 속도(11.2ms) ≈ ORB 추출(11.5ms)</div>
                 </div>
             </div>
             <div class="section">
                 <div class="section-title">Discussion: 결과의 해석</div>
                 <div class="section-content">
-                    <div class="bullet">FFT 분해 실험으로 날갯짓 진동(주기적 성분)이 영상 불안정의 주원인임을 통제된 비교 실험으로 충동적으로 확인함</div>
-                    <div class="bullet">HFNet의 글로벌 설명자는 큰 진폭의 회전과 동적 교란 시 로컨룰 추적이 표류하는 FW-05 구간에서 상황 묻맀 매칭을 안정적으로 유지함</div>
-                    <div class="bullet">완전한 어두운 실내(Indoor16)에서는 모든 시각 방법이 실패하며, 이는 알고리즘 특유 결함이 아닌 비전 센서의 물리적 한계임을 지적함</div>
-                    <div class="bullet">FWFR 플랫폼의 대형폭 날갯짓 유발 진동과 비강체 프레임 왕는다 같은 움직임의 특징에는 반드시 특수화된 알고리즘 설계가 필요함을 재확인함</div>
-                    <div class="bullet">BDR 제약 제거가 LBA 시간 415 ms로 증가, ATE 가 0.181 m로 상승, 49.6% 정확도 하락으로 좌우 단기선 방지가 주요 향향요인임을 확인함</div>
-                    <div class="bullet">현재 시스템은 주상 프레임 속도(12.7 FPS)를 유지하여 실시간 처리가 가능하나, 병렬 컴퓨팅을 통한 속도 향상이 향후 연구 방향으로 제시됨</div>
+                    <div class="bullet">S-HFNET의 전역-지역 계층적 매칭이 FWFR 특성상 발생하는 시야각 오버랩 손실 상황에서도 안정적인 매칭을 유지하는 데 핵심적 역할을 함</div>
+                    <div class="bullet">엔트로피 기반 키프레임 선택에서 이미지 정보 엔트로피(E_I) 제거 시 25.6%, 분산 엔트로피(E_D) 제거 시 21.5%의 정확도 감소로 두 컴포넌트 모두 필수적임을 입증</div>
+                    <div class="bullet">BDR(기저 비율)이 가장 큰 성능 저하를 유발(제거 시 LBA 415ms로 증가, ATE 0.181m, 49.6% 정확도 감소) - 짧은 기저선 구성 방지가 위치 추정 정확도에 결정적 중요성 가짘</div>
+                    <div class="bullet">Jetson Orin Nano의 하드웨어 가속으로 딥러닝 기반 S-HFNET이 CPU 집약적인 ORB 추출과 동등한 처리 속도를 달성하여 엣지 플랫폼 배포 가능성 입증</div>
+                    <div class="bullet">완전한 어둠(Indoor16) 환경에서는 모든 시각 SLAM 방법이 실패 - 비전 센서의 물리적 한계이며, 향후 IR 카메라나 이벤트 카메라와의 융합이 필요함</div>
+                    <div class="bullet">현재 프레임워크의 고정 파라미터 수 제한이 한계점이며, 향후 파라미터 적응적 조정 및 백엔드 최적화를 통한 프레임레이트 향상이 목표</div>
                 </div>
             </div>
             <div class="section">
                 <div class="section-title">Conclusion: 최종 요약</div>
                 <div class="section-content">
-                    <div class="bullet">S-HFNET 계층적 매칭, 불확실성 기반 단안 초기화, 엔트로피 기반 키프레임 선택의 3가지 핵심 혁신을 통합한 FWFR 특화 단안 SLAM 시스템 FWFR-SLAM을 제안함</div>
-                    <div class="bullet">GRIFFIN 공개 데이터셋에서 ATE 46%, FW 자체 데이터엔서 36% 감소; 종합 41% 이상 ATE 개선으로 ORB-SLAM3-S 대비 막대한 성능 향상을 달성함</div>
-                    <div class="bullet">S-HFNET는 평균 매칭 정확도를 9.5% 이상 향상하고, ATE 개선으로 시각 SLAM의 정위 정확도를 직접 향상시킴을 입증함</div>
-                    <div class="bullet">단안 초기화 불확실성 피딩은 초기화 시간을 늘리지 않고(215 vs 219 ms) 초기화 오류를 20%, ATE를 18% 이상 향상함을 종합적으로 입증함</div>
-                    <div class="bullet">키프레임 선택은 키프레임 수 14% 감소, LBA 9% 감소, ATE 23% 이상 향상으로 효율성과 정확도를 동시에 확보함</div>
-                    <div class="bullet">향후 연구: 병렬 컴퓨팅으로 프레임 속도 향상, 다양한 FWFR 플랫폼 일반화, 어두운 환경 대응 개선이 필요함</div>
+                    <div class="bullet">FWFR-SLAM: FWFR의 세 가지 핵심 SLAM 도전(이미지 블러, 불량 초기화, 중복 키프레임)을 모두 해결하는 특화된 단안 시각 SLAM 시스템 성공적으로 제안</div>
+                    <div class="bullet">S-HFNET: 전역 탐색과 지역 매칭을 결합한 2단계 계층적 특징 매칭이 대진폭 진동과 급회전 환경에서 90.3%의 높은 매칭 정확도 달성</div>
+                    <div class="bullet">불확실성 기반 초기화: 신뢰할 수 있는 맵 포인트만 선택하여 전단부 오매칭과 계산 중복을 감소시킴</div>
+                    <div class="bullet">엔트로피 기반 키프레임 선택: 키프레임 14% 감소, LBA 시간 9% 단축, 위치 정확도 23% 이상 향상의 균형 잡힌 효율성 달성</div>
+                    <div class="bullet">통합 성능: ORB-SLAM3-S 대비 전체 41% 이상 위치 정확도 향상, Jetson Orin Nano에서 실시간 12.7 FPS 처리 유지</div>
+                    <div class="bullet">향후 연구: 고정 파라미터 수 감소 및 적응적 파라미터 조정, 병렬 컴퓨팅 기반 백엔드 최적화로 프레임레이트 향상</div>
                 </div>
             </div>
         </div>
